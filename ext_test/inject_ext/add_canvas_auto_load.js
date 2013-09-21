@@ -24,6 +24,7 @@ var Player = function(x,y){
   this.radius=8;
   this.color="red";
   this.lineWidth=3;
+  this.speed=10;
   this.crosshair = {
     x:0,
     y:0,
@@ -37,6 +38,27 @@ var Player = function(x,y){
       this.y=parentY+8*Math.sin(this.angle);
     }
   };
+}
+var bullets=[];
+var Bullet = function(x,y){
+  this.angle=player.crosshair.angle;
+  this.spawnDistance=15;
+  this.x=player.x+this.spawnDistance*Math.cos(this.angle);
+  this.y=player.y+this.spawnDistance*Math.sin(this.angle);
+  this.radius=3;
+  this.lineWidth=.5;
+  this.color='red';
+  this.speed=5;
+  this.move=function(){
+    this.x+=this.speed*Math.cos(this.angle);
+    this.y+=this.speed*Math.sin(this.angle);
+  }
+  this.isDead=function(){
+    if (this.x+this.radius>canvas.width) return true;
+    if (this.x-this.radius<0) return true;
+    if (this.y+this.radius>canvas.height) return true;
+    if (this.y-this.radius<0) return true;
+  }
 }
 setup();
 run();
@@ -80,7 +102,6 @@ function createObstacles(){
   }
   //iterate through all obstacles, see what grids they intersect, and make those false
   for (var i=0;i<obstacles.length;i++){
-    //console.log(obstacles[i]);
     var startx=Math.floor(obstacles[i].x/CELL_SIZE);
     var starty=Math.floor(obstacles[i].y/CELL_SIZE);
     var endx=Math.ceil((obstacles[i].x+obstacles[i].width)/CELL_SIZE);
@@ -109,6 +130,7 @@ function createPlayer(){
 }
 function initListeners(){
   document.addEventListener('mousedown',function(e) {
+    e.preventDefault();
     keysDown['mouse'] = true;
   },false);
   document.addEventListener('mouseup',function(e) {
@@ -132,8 +154,40 @@ function run(){
   },16.7);
 }
 //update game logic
+var KEY_UP = 38;
+var KEY_DOWN = 40;
+var KEY_LEFT = 37;
+var KEY_RIGHT = 39;
 function update(){
+  //move player
+  if (KEY_UP in keysDown) { 
+    if (player.y-player.radius>=0) {
+      player.y -= player.speed;
+    }
+  }
+  if (KEY_DOWN in keysDown) { 
+    if (player.y+player.radius<=canvas.height) {
+      player.y += player.speed;
+    }
+  }
+  if (KEY_LEFT in keysDown) { 
+    if (player.x-player.radius >= 0) {
+      player.x -= player.speed;
+    }
+  }
+  if (KEY_RIGHT in keysDown) { 
+    if (player.x+player.radius <= canvas.width) {
+      player.x += player.speed;
+    }
+  }
   player.crosshair.update(player.x,player.y,mousePos.x,mousePos.y);
+  
+  if('mouse' in keysDown){
+    bullets.push(new Bullet(mousePos.x,mousePos.y));
+  }
+  for(var i=bullets.length-1;i>=0;i--){
+    bullets[i].move();
+  }
 }
 //rendering functions
 var drawGrid=false;
@@ -141,6 +195,7 @@ function render(){
   renderBG();
   renderObstacles();
   renderPlayer();
+  renderBullets();
   ctx.fillStyle='black';
   if (drawGrid) {
     ctx.strokeStyle='red';
@@ -185,6 +240,16 @@ function renderPlayer(){
   ctx.fillStyle = 'rgba(255,0,0,.5)';
   ctx.fill();
   ctx.closePath();
+}
+function renderBullets(){
+  for (var i=0;i<bullets.length;i++){
+    ctx.beginPath();
+    ctx.arc(bullets[i].x, bullets[i].y, bullets[i].radius, 0, 2*Math.PI, false);
+    ctx.lineWidth = bullets[i].lineWidth;
+    ctx.strokeStyle = bullets[i].color;
+    ctx.stroke();
+    ctx.closePath();
+  }
 }
 //update mouse position
 function getMouseCoords(event) {

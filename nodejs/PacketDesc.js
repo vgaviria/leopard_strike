@@ -1,5 +1,5 @@
 PacketTypes= {
-	OPENPAGE:1, 		// params url, checksum - CLIENT
+	OPENPAGE:1, 		// params url - CLIENT
 	CLIENTLIST:2,		// params clients - SERVER
 	JOINGAME:3,			// params url, checksum - CLIENT
 	CREATEPLAYER:4,		// params pid, x, y, rgb -SERVER
@@ -21,12 +21,26 @@ User = function(id, sock){
 	this.sock=sock;
 }
 
+Page = function(url){
+	this.url=url;
+	this.num=0;
+}
+
 Room = function(id){
 	this.id=id;
 	this.numPlayers=0;
 	this.players={};
 	this.bullets=[];
 }
+
+Bullet = function(x,y,vx,vy,size){
+	this.x=x;
+	this.y=y;
+	this.vx=vx;
+	this.vy=vy;
+	this.size=size;
+}
+
 Room.prototype.addPlayer= 
 		function(player){
 			this.numPlayers=this.numPlayers+1;
