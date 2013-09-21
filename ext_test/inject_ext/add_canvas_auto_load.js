@@ -4,7 +4,8 @@ var drawInterval;
 var keysDown=[];
 var mousePos={'x':0,'y':0};
 //level grid pathing + spawning + stuff
-var grid;
+var grid = [];
+var valid = [];
 var CELL_SIZE = 30;
 
 var obstacles=[];
@@ -47,7 +48,7 @@ var Bullet = function(x,y){
   this.y=player.y+this.spawnDistance*Math.sin(this.angle);
   this.radius=3;
   this.lineWidth=.5;
-  this.color='red';
+  this.color=player.color;
   this.speed=5;
   this.move=function(){
     this.x+=this.speed*Math.cos(this.angle);
@@ -119,7 +120,6 @@ function createObstacles(){
 //generate player and place him somewhere unobstructed
 function createPlayer(id,color){
   //pick a random true grid and spawn the player there
-  var valid=[];
   for (var i=0;i<grid.length;i++){
     for (var j=0;j<grid[i].length;j++){
       if(grid[i][j]) { valid.push({'i':i,'j':j}); }
@@ -209,11 +209,49 @@ function update(){
   if('mouse' in keysDown){
     bullets.push(new Bullet(mousePos.x,mousePos.y));
   }
+  var bulletGrid = {};
+  var deadBullets = [];
   for(var i=bullets.length-1;i>=0;i--){
     bullets[i].move();
-    if (bullets[i].isDead()){
-      bullets.splice(i,1);
+    bulX = Math.floor(bullets[i].x/CELL_SIZE);
+    bulY = Math.floor(bullets[i].y/CELL_SIZE);
+    key=bulX+':'+bulY;
+    if (key in bulletGrid) {
+      bulletGrid[key].push(i);
+    } else {
+      bulletGrid[key]=[];
+      bulletGrid[key].push(i);
     }
+  }
+  Object.keys(bulletGrid).forEach(function(key) {
+    var vals = key.split(":");
+    if (vals[0]<=0 || vals[1] <=0 || vals[0]>=grid.length || vals[1]>=grid[0].length) {
+      delete bulletGrid[key];
+    }
+    else if (grid[vals[0]][vals[1]]) {
+      delete bulletGrid[key];
+    }
+  });
+  
+  Object.keys(bulletGrid).forEach(function(key) {
+    for (var i=0;i<bulletGrid[key].length;i++) {
+      for (var j=0;j<obstacles.length;j++) {
+        var bulletIndex = bulletGrid[key][i];
+        var obMinX = obstacles[j].x;
+        var obMaxX = obMinX+obstacles[j].width;
+        var obMinY = obstacles[j].y;
+        var obMaxY = obMinY+obstacles[j].height;
+        if (bullets[bulletIndex].x < obMaxX && bullets[bulletIndex].x > obMinX
+          && bullets[bulletIndex].y < obMaxX && bullets[bulletIndex].y > obMinY)
+          deadBullets.push(bulletGrid[key][i]);
+      }
+    }
+  });
+  for (var i=0;i<deadBullets.length;i++) {
+    bullets.splice(deadBullets[i],1);
+  };
+  for (var i=bullets.length-1;i>=0;i--) {
+    if(bullets[i].isDead()) { bullets.splice(i,1); }
   }
 }
 //rendering functions
@@ -224,6 +262,7 @@ function render(){
   renderPlayer();
   renderBullets();
   ctx.fillStyle='black';
+  /* draw grid */
   if (drawGrid) {
     ctx.strokeStyle='red';
     for (var i=0;i<grid.length;i++){
@@ -231,7 +270,7 @@ function render(){
         if (!grid[i][j]) {
           ctx.strokeRect(i*CELL_SIZE,j*CELL_SIZE,CELL_SIZE,CELL_SIZE);
         }
-      };
+      }
     }
   }
 }
