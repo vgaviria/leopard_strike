@@ -3,7 +3,7 @@ PacketTypes= {
 	CLIENTLIST:2,		// params clients - SERVER
 	JOINGAME:3,			// params url, checksum - CLIENT
 	CREATEPLAYER:4,		// params pid, x, y, rgb -SERVER
-	UPDATEPLAYER:5,		// params pid,x,y, deg -SERVER & CLIENT
+	UPDATEPLAYER:5,		// params pid, x,y, deg -SERVER & CLIENT
 	CREATEFX:6,			// params CreateFXParams -SERVER
 	DAMAGEPLAYER:7,		// params playerid, hp -SERVER
 	SETPLAYERID:8,		// params pid -SERVER

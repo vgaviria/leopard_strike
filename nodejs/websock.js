@@ -144,8 +144,8 @@ function updateRoom(room){
 	var update = {
 		players:{}
 	};
-	for(var i =0;i <room.players.length;i++){
-		var player = room.players[i];
+	for(var pid in room.players){
+		var player = room.players[pid];
 		var tmp = {
 			x:player.x,
 			y:player.y,

@@ -74,7 +74,7 @@ function setup(){
   ctx = canvas.getContext("2d");
 
   createObstacles();
-  createPlayer('red');
+  //createPlayer('red');
 
   initListeners();
 }
