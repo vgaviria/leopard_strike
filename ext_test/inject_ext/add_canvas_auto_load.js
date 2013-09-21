@@ -141,10 +141,21 @@ function initListeners(){
   },false);
   document.addEventListener("keydown", function(e) {
     keysDown[e.keyCode] = true;
+
+    if(e.keyCode == 40 || e.keyCode == 38){
+      e.preventDefault();
+    }
+
   },false);
   document.addEventListener("keyup", function(e) {
     delete keysDown[e.keyCode];
-  },false)
+  },false);
+
+  //Remember to unbind the listeners
+  $(document).bind('mousewheel DOMMouseScroll', function(e){
+    e.preventDefault();
+  });
+
 }
 //start interval
 function run(){
@@ -181,6 +192,18 @@ function update(){
     }
   }
   player.crosshair.update(player.x,player.y,mousePos.x,mousePos.y);
+
+  //Scrolls the view to the player's x. The viewport will move.
+  // var winHeight = $(window).innerHeight();
+  // if (player.y < (player.y + (winHeight * 0.25)) ){
+  //   $(document).scrollTop(player.y - (winHeight * 0.25)); 
+  // }
+  // else if (player.y > (player.y + (winHeight * 0.75)) ){
+  //   $(document).scrollTop(player.y - (winHeight * 0.75));
+  // }
+
+  var winHeight = $(window).innerHeight();
+  $(document).scrollTop(player.y - (winHeight * 0.5));
   
   if('mouse' in keysDown){
     bullets.push(new Bullet(mousePos.x,mousePos.y));
