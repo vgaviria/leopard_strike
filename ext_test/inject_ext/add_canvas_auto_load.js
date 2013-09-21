@@ -83,6 +83,8 @@ function createObstacles(){
     var starty=Math.floor(obstacles[i].y/CELL_SIZE);
     var endx=Math.ceil((obstacles[i].x+obstacles[i].width)/CELL_SIZE);
     var endy=Math.ceil((obstacles[i].y+obstacles[i].height)/CELL_SIZE);
+    if (endx>canvas.width) { endx-=CELL_SIZE; }
+    if (endy>canvas.height) { endy-=CELL_SIZE; }
     for (var j=startx;j<endx;j++){
       for (var k=starty;k<endy;k++){
         grid[j][k]=false;
