@@ -25,9 +25,12 @@ function setup(){
 
   createObstacles();
 }
+//generate obstacles based on document
 function createObstacles(){
-  $("div").each(function(){
-    obstacles.push(new Obstacle($(this).offset().left,$(this).offset().top,$(this).width(),$(this).height()));
+  $("*:not(:has(*))").each(function(){
+    if (Math.random()<.5) {
+      obstacles.push(new Obstacle($(this).offset().left,$(this).offset().top,$(this).width(),$(this).height()));
+    }
   });
 }
 //start interval
