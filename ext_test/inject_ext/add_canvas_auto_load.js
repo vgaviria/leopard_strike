@@ -68,8 +68,8 @@ function createObstacles(){
     }
   }
   //create a grid of CELL_SIZE pixel blocks
-  grid = new Array(Math.floor(canvas.width/CELL_SIZE));
-  var g_height = Math.floor(canvas.height/CELL_SIZE);
+  grid = new Array(Math.ceil(canvas.width/CELL_SIZE));
+  var g_height = Math.ceil(canvas.height/CELL_SIZE);
   for (var i=0;i<grid.length;i++) {
     grid[i]=new Array(g_height);
     for (var j=0;j<grid[i].length;j++){
@@ -83,8 +83,6 @@ function createObstacles(){
     var starty=Math.floor(obstacles[i].y/CELL_SIZE);
     var endx=Math.ceil((obstacles[i].x+obstacles[i].width)/CELL_SIZE);
     var endy=Math.ceil((obstacles[i].y+obstacles[i].height)/CELL_SIZE);
-    if (endx>canvas.width) { endx-=CELL_SIZE; }
-    if (endy>canvas.height) { endy-=CELL_SIZE; }
     for (var j=startx;j<endx;j++){
       for (var k=starty;k<endy;k++){
         grid[j][k]=false;
