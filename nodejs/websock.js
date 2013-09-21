@@ -2,19 +2,33 @@ require('./PacketDesc.js');
 var io = require('socket.io').listen(443);
 var server={
 	users:{},
-	rooms:{}
+	rooms:{},
+	pages:{}
 };
+
 
 
 function respondOpenPage(socket,msg){
 	console.log("packet recieved by "+server.users[socket.id]+":"+msg);
+	if(msg.url){
+		if(!server.pages[url])
+			server.pages[url]= new Page(url);
+		server.pages[url].num++;
+		sendClientList(socket,server.pages[url]);
+	}
+}
+
+function sendClientList(socket,page){
+	var msg = new Packet(PacketTypes.CLIENTLIST);
+	msg.clients = page.num;
+	socket.send(msg);
 }
 
 function respondJoinGame(usr,socket,msg){
-	if(msg.url && msg.checksum){
+	if(msg.url){
 		if(usr.room)
 			socket.leave(usr.room);
-		var newRoom=msg.url+msg.checksum;
+		var newRoom=msg.url;
 		// currently rooms are assigned as msg.url+msg.checksum
 		console.log("client joined an awesome room.");
 		socket.join(newRoom);
@@ -27,7 +41,8 @@ function respondJoinGame(usr,socket,msg){
 function respondFireBullet(usr,socket,msg){
 	if(usr.room && usr.pid && msg.x && msg.y && msg.deg)
 	{
-		server.rooms[usr.room].bullets.push();
+		server.rooms[usr.room].bullets.push(new Bullet(msg.x,msg.y,
+			10*Math.cos(msg.deg/180*Math.PI),10*Math.sin(msg.deg/180*Math.PI),5));
 	}
 }
 

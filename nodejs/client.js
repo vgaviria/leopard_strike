@@ -17,6 +17,12 @@ function respondSetPlayerId(socket,msg){
 	//set the player id so we know which
 }
 
+function sendOpenPage(url){
+	var packet = new Packet(PacketTypes.OPENPAGE);
+	packet.url=url;
+	socket.send(packet);
+}
+
 
 var socket = io.connect('http://localhost:443/');
   socket.on('connect', function () {
