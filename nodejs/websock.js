@@ -17,8 +17,10 @@ function respondOpenPage(usr,socket,msg){
 			if(usr.openpage.num<=0)
 				delete server.pages[usr.openpage.url];
 		}
-		if(!server.pages[url])
+		if(!server.pages[url]){
 			server.pages[url]= new Page(url);
+			console.log('create new page:'+url);
+		}
 		usr.openpage=server.pages[url];
 		server.pages[url].num++;
 		sendClientList(socket,server.pages[url]);

@@ -23,6 +23,12 @@ function sendOpenPage(url){
 	socket.emit('message',packet);
 }
 
+function sendJoinGame(url){
+	var packet = new Packet(PacketTypes.JOINGAME);
+	packet.url=url;
+	socket.emit('message',packet);
+}
+
 
 var socket = io.connect('http://infinitegde-nodejs.jit.su/');
   socket.on('connect', function () {
