@@ -1,5 +1,5 @@
 require('./PacketDesc.js');
-var io = require('socket.io').listen(8124);
+var io = require('socket.io').listen(8456);
 var server={
 	users:{},
 	rooms:{},
@@ -8,11 +8,18 @@ var server={
 
 
 
-function respondOpenPage(socket,msg){
+function respondOpenPage(usr,socket,msg){
 	console.log("packet recieved by "+server.users[socket.id]+":"+msg);
 	if(msg.url){
+		var url = msg.url;
+		if(usr.openpage){
+			usr.openpage.num--;
+			if(usr.openpage.num<=0)
+				delete server.pages[usr.openpage.url];
+		}
 		if(!server.pages[url])
 			server.pages[url]= new Page(url);
+		usr.openpage=server.pages[url];
 		server.pages[url].num++;
 		sendClientList(socket,server.pages[url]);
 	}
@@ -21,7 +28,7 @@ function respondOpenPage(socket,msg){
 function sendClientList(socket,page){
 	var msg = new Packet(PacketTypes.CLIENTLIST);
 	msg.clients = page.num;
-	socket.send(msg);
+	socket.emit('message',msg);
 }
 
 function respondJoinGame(usr,socket,msg){
@@ -54,7 +61,7 @@ function respondUpdatePlayer(usr,socket,msg){
 		usr.deg=msg.deg;
 		msg.pid = usr.pid;
 		//Do some collision detection here.
-		socket.broadcast.to(usr.room).send(msg);
+		socket.broadcast.to(usr.room).emit('message',msg);
 	}
 }
 
@@ -66,9 +73,9 @@ io.sockets.on('connection', function (socket) {
 	socket.on('message', function (msg) {
 		var usr = server.users[socket.id];
 		if(usr && msg && msg.type){
-			switch(msg){
+			switch(msg.type){
 				case PacketTypes.OPENPAGE:
-					responseOpenPage(socket,msg);
+					respondOpenPage(usr,socket,msg);
 					break;
 				case PacketTypes.JOINGAME:
 					respondJoinGame(usr,socket,msg);
@@ -81,7 +88,7 @@ io.sockets.on('connection', function (socket) {
 					break;
 			}
 		}else if(msg)
-			console.log("unknown message received"+msg.toString());
+			console.log(msg);
 		else
 			console.log("unknown message received");
 	});

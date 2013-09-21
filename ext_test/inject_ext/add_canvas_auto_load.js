@@ -73,7 +73,7 @@ function setup(){
   ctx = canvas.getContext("2d");
 
   createObstacles();
-  createPlayer();
+  createPlayer('red');
 
   initListeners();
 }
@@ -115,7 +115,7 @@ function createObstacles(){
   }
 }
 //generate player and place him somewhere unobstructed
-function createPlayer(){
+function createPlayer(id,color){
   //pick a random true grid and spawn the player there
   var valid=[];
   for (var i=0;i<grid.length;i++){
@@ -127,6 +127,7 @@ function createPlayer(){
   var playerX = Math.floor(spawnPoint.i*CELL_SIZE)+15;
   var playerY = Math.floor(spawnPoint.j*CELL_SIZE)+15;
   player = new Player(playerX,playerY);
+  player.color=color;
 }
 function initListeners(){
   document.addEventListener('mousedown',function(e) {
