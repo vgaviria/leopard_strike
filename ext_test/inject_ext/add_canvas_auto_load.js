@@ -82,7 +82,9 @@ function createObstacles(){
   //select 50% of deepest elements
   $("*:not(:has(*)):not('canvas')").each(function(){
     if (Math.random()<.5) {
-      obstacles.push(new Obstacle($(this).offset().left,$(this).offset().top,$(this).width(),$(this).height()));
+      if(($(this).width() > 10 && $(this).height() > 10) && ($(this).width() < canvas.width * .80)){
+        obstacles.push(new Obstacle($(this).offset().left,$(this).offset().top,$(this).width(),$(this).height()));
+      }
     }
   });
   //delete -999 elements
