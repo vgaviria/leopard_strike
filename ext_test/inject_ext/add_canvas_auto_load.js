@@ -100,7 +100,7 @@ function createObstacles(){
   for (var i=0;i<grid.length;i++) {
     grid[i]=new Array(g_height);
     for (var j=0;j<grid[i].length;j++){
-      grid[i][j]=true;
+      grid[i][j]=[];
     }
   }
   //iterate through all obstacles, see what grids they intersect, and make those false
@@ -112,7 +112,7 @@ function createObstacles(){
     if (endx>=grid.length || endy>=grid[0].length) { continue; }
     for (var j=startx;j<endx;j++){
       for (var k=starty;k<endy;k++){
-        grid[j][k]=false;
+        grid[j][k].push(i);
       }
     }
   }
@@ -122,7 +122,7 @@ function createPlayer(id,color){
   //pick a random true grid and spawn the player there
   for (var i=0;i<grid.length;i++){
     for (var j=0;j<grid[i].length;j++){
-      if(grid[i][j]) { valid.push({'i':i,'j':j}); }
+      if(grid[i][j].length <= 0) { valid.push({'i':i,'j':j}); }
     }
   }
   var spawnPoint = valid[Math.floor(Math.random()*valid.length)];
@@ -228,25 +228,41 @@ function update(){
     if (vals[0]<=0 || vals[1] <=0 || vals[0]>=grid.length || vals[1]>=grid[0].length) {
       delete bulletGrid[key];
     }
-    else if (grid[vals[0]][vals[1]]) {
+    else if (grid[vals[0]][vals[1]].length == 0) {
       delete bulletGrid[key];
     }
-  });
-  
-  Object.keys(bulletGrid).forEach(function(key) {
-    for (var i=0;i<bulletGrid[key].length;i++) {
-      for (var j=0;j<obstacles.length;j++) {
-        var bulletIndex = bulletGrid[key][i];
-        var obMinX = obstacles[j].x;
-        var obMaxX = obMinX+obstacles[j].width;
-        var obMinY = obstacles[j].y;
-        var obMaxY = obMinY+obstacles[j].height;
-        if (bullets[bulletIndex].x < obMaxX && bullets[bulletIndex].x > obMinX
-          && bullets[bulletIndex].y < obMaxY && bullets[bulletIndex].y > obMinY)
-          deadBullets.push(bulletGrid[key][i]);
+    else{
+      var potentialCells = grid[vals[0]][vals[1]];
+      for(var i=0;i<bulletGrid[key].length;i++){
+        for(var j=0;j<potentialCells.length;j++){
+          var obstacleIndex = potentialCells[j];
+          var bulletIndex = bulletGrid[key][i];
+          var obMinX = obstacles[obstacleIndex].x;
+          var obMaxX = obMinX+obstacles[obstacleIndex].width;
+          var obMinY = obstacles[obstacleIndex].y;
+          var obMaxY = obMinY+obstacles[obstacleIndex].height;
+          if (bullets[bulletIndex].x < obMaxX && bullets[bulletIndex].x > obMinX
+            && bullets[bulletIndex].y < obMaxY && bullets[bulletIndex].y > obMinY)
+            deadBullets.push(bulletGrid[key][i]);
+        }
       }
     }
   });
+  
+  // Object.keys(bulletGrid).forEach(function(key) {
+  //   for (var i=0;i<bulletGrid[key].length;i++) {
+  //     for (var j=0;j<obstacles.length;j++) {
+  //       var bulletIndex = bulletGrid[key][i];
+  //       var obMinX = obstacles[j].x;
+  //       var obMaxX = obMinX+obstacles[j].width;
+  //       var obMinY = obstacles[j].y;
+  //       var obMaxY = obMinY+obstacles[j].height;
+  //       if (bullets[bulletIndex].x < obMaxX && bullets[bulletIndex].x > obMinX
+  //         && bullets[bulletIndex].y < obMaxY && bullets[bulletIndex].y > obMinY)
+  //         deadBullets.push(bulletGrid[key][i]);
+  //     }
+  //   }
+  // });
   for (var i=0;i<deadBullets.length;i++) {
     bullets.splice(deadBullets[i],1);
   };
@@ -267,7 +283,7 @@ function render(){
     ctx.strokeStyle='red';
     for (var i=0;i<grid.length;i++){
       for (var j=0;j<grid[i].length;j++) {
-        if (!grid[i][j]) {
+        if (grid[i][j].length > 0) {
           ctx.strokeRect(i*CELL_SIZE,j*CELL_SIZE,CELL_SIZE,CELL_SIZE);
         }
       }
