@@ -29,6 +29,6 @@
     }
   ],
 
-  "web_accessible_resources": ["add_canvas_auto_load.js"]
+  "web_accessible_resources": ["add_canvas_auto_load.js" , "jquery-1.10.2.js"]
 
 }
