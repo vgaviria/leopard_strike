@@ -31,7 +31,7 @@ function respondOpenPage(usr,socket,msg){
 function sendClientList(socket,page){
 	var msg = new Packet(PacketTypes.CLIENTLIST);
 	msg.clients = page.num;
-	socket.emit('message',msg);
+	socket.volatile.emit('message',msg);
 }
 function randomColor(){
 	return "rgba("+Math.floor(Math.random()*256)+","+
@@ -79,8 +79,8 @@ function respondJoinGame(usr,socket,msg){
 		usr.y=100;
 		usr.deg=0;
 		usr.color= randomColor();
-		socket.broadcast.to(usr.room).emit('message',constructNewPlayerPacket(usr.pid,500,500,randomColor()));
-		socket.emit('message',constructNewPlayerIDPacket(usr.pid));
+		socket.volatile.broadcast.to(usr.room).emit('message',constructNewPlayerPacket(usr.pid,500,500,randomColor()));
+		socket.volatile.emit('message',constructNewPlayerIDPacket(usr.pid));
 	}
 }
 
@@ -135,3 +135,24 @@ io.sockets.on('connection', function (socket) {
 		delete server.users[socket.id];
 	});
 });
+
+function setupRoom(room){
+	room.timer=setInterval(updateRoom,16,room);
+}
+
+function updateRoom(room){
+	var update = {
+		players:{}
+	};
+	for(var i =0;i <room.players.length;i++){
+		var player = room.players[i];
+		var tmp = {
+			x:player.x,
+			y:player.y,
+			deg:player.deg,
+			rgba:player.color
+		};
+		update.players[player.pid]=tmp;
+	}
+	io.sockets.in(room.id).emit('message',update);
+}

@@ -17,16 +17,11 @@ chrome.browserAction.onClicked.addListener(function(tab) {
 
 	  if(currentView != views[0]){
 	  	chrome.tabs.executeScript({
-	    	code: "var s2 = document.createElement('script'); s2.src ='" + jq + "'; s2.onload = function() { var s = document.createElement('script'); s.src ='" + src + "'; (document.head||document.documentElement).appendChild(s); }; (document.head||document.documentElement).appendChild(s2);"
+	    	code: "var s2 = document.createElement('script'); s2.src ='" + jq + "'; s2.onload = function() { var s = document.createElement('script'); s.src ='" + src + "'; (document.head||document.documentElement).appendChild(s); }; (document.head||document.documentElement).appendChild(s2); "
 	  	});
+		sendJoinGame(currentTabURL);
 	  }
 
-	  if(views.length>0){
-		if(currentView && currentView.stop)
-			currentView.stop();
-		currentView=views[0];
-		sendJoinGame(currentView.location.href);
-	  }
 	  
 });
 

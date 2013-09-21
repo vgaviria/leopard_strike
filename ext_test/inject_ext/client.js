@@ -30,7 +30,7 @@ function sendJoinGame(url){
 }
 
 
-var socket = io.connect('http://infinitegde-nodejs.jit.su/');
+var socket = io.connect("http://localhost:8456/");//'http://infinitegde-nodejs.jit.su/');
   socket.on('connect', function () {
     socket.on('message', function (msg) {
 		if(msg && msg.type){
