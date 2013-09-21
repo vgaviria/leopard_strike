@@ -1,0 +1,12 @@
+<script src="node_modules/socket.io-client/dist/socket.io.min.js"></script>
+<script>
+  document.write("sending hi to server");
+  var socket = io.connect('http://localhost/');
+  socket.on('connect', function () {
+    socket.send('hi');
+
+    socket.on('message', function (msg) {
+		document.write('server says '+msg);
+    });
+  });
+</script>
