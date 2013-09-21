@@ -12,8 +12,7 @@
   ],
 
   "background": {
-    "scripts": ["background.js", "add_canvas_auto_load.js"],
-    "persistent": false
+    "scripts": ["background.js","socket.io.min.js","add_canvas_auto_load.js","client.js","packetDesc.js"]
   },
 
   "browser_action": {
