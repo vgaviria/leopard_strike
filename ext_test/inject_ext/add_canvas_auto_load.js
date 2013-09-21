@@ -242,7 +242,7 @@ function update(){
         var obMinY = obstacles[j].y;
         var obMaxY = obMinY+obstacles[j].height;
         if (bullets[bulletIndex].x < obMaxX && bullets[bulletIndex].x > obMinX
-          && bullets[bulletIndex].y < obMaxX && bullets[bulletIndex].y > obMinY)
+          && bullets[bulletIndex].y < obMaxY && bullets[bulletIndex].y > obMinY)
           deadBullets.push(bulletGrid[key][i]);
       }
     }
