@@ -32,7 +32,6 @@ function sendJoinGame(url){
 
 var socket = io.connect('http://infinitegde-nodejs.jit.su/');
   socket.on('connect', function () {
-	socket.emit('message',{name:'adukyo'});
     socket.on('message', function (msg) {
 		if(msg && msg.type){
 			switch(msg.type){

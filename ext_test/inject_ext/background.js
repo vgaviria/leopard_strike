@@ -1,3 +1,5 @@
+var currentView;
+
 currentTabURL = "";
 
 isGamePlaying = false;
