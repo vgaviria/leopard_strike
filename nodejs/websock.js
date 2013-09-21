@@ -21,7 +21,7 @@ function respondOpenPage(socket,msg){
 function sendClientList(socket,page){
 	var msg = new Packet(PacketTypes.CLIENTLIST);
 	msg.clients = page.num;
-	socket.send(msg);
+	socket.emit('message',msg);
 }
 
 function respondJoinGame(usr,socket,msg){
@@ -54,12 +54,13 @@ function respondUpdatePlayer(usr,socket,msg){
 		usr.deg=msg.deg;
 		msg.pid = usr.pid;
 		//Do some collision detection here.
-		socket.broadcast.to(usr.room).send(msg);
+		socket.broadcast.to(usr.room).emit('message',msg);
 	}
 }
 
 
 io.sockets.on('connection', function (socket) {
+	socket.emit('message',{name:"adukyo"});
 	var hs = socket.handshake;
 	server.users[socket.id] = new User(socket.id,socket);
 	console.log('user('+server.users[socket.id]+') connected');
@@ -81,7 +82,7 @@ io.sockets.on('connection', function (socket) {
 					break;
 			}
 		}else if(msg)
-			console.log("unknown message received"+msg.toString());
+			console.log(msg);
 		else
 			console.log("unknown message received");
 	});
