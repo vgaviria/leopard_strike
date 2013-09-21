@@ -12,3 +12,7 @@ chrome.browserAction.onClicked.addListener(function(tab) {
 	    code: "var s2 = document.createElement('script'); s2.src ='" + jq + "'; s2.onload = function() { var s = document.createElement('script'); s.src ='" + src + "'; (document.head||document.documentElement).appendChild(s); }; (document.head||document.documentElement).appendChild(s2);"
 	  });
 });
+
+chrome.tabs.onActivated.addListener(function(tab) {
+	
+});
