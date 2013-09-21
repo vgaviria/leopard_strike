@@ -1,20 +1,4 @@
 <script src="node_modules/socket.io-client/dist/socket.io.min.js"></script>
 <script src="PacketDesc.js"></script>
-<script>
-  document.write("sending hi to server");
-  var socket = io.connect('http://localhost:443/');
-  socket.on('connect', function () {
-
-    socket.on('message', function (msg) {
-		if(msg && msg.type){
-			switch(msg.type){
-				case PacketTypes.CLIENTLIST:
-					if(msg.clients)
-						console.log("LIST:"+msg.clients);
-				break;
-			}
-		}else
-			console.log("unknown message received"+msg);
-    });
-  });
+<script src="client.js">
 </script>

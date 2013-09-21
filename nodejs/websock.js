@@ -1,7 +1,48 @@
+require('./PacketDesc.js');
 var io = require('socket.io').listen(443);
 var server={
 	users:{},
+	rooms:{}
 };
+
+
+function respondOpenPage(socket,msg){
+	console.log("packet recieved by "+server.users[socket.id]+":"+msg);
+}
+
+function respondJoinGame(usr,socket,msg){
+	if(msg.url && msg.checksum){
+		if(usr.room)
+			socket.leave(usr.room);
+		var newRoom=msg.url+msg.checksum;
+		// currently rooms are assigned as msg.url+msg.checksum
+		console.log("client joined an awesome room.");
+		socket.join(newRoom);
+		if(!server.rooms[newRoom])
+			server.rooms[newRoom]=new Room(newRoom);
+		server.rooms[newRoom].addPlayer(usr);
+	}
+}
+
+function respondFireBullet(usr,socket,msg){
+	if(usr.room && usr.pid && msg.x && msg.y && msg.deg)
+	{
+		server.rooms[usr.room].bullets.push();
+	}
+}
+
+function respondUpdatePlayer(usr,socket,msg){
+	if(usr.room && usr.pid && msg.x && msg.y && msg.deg)
+	{
+		usr.x=msg.x;
+		usr.y=msg.y;
+		usr.deg=msg.deg;
+		msg.pid = usr.pid;
+		//Do some collision detection here.
+		socket.broadcast.to(usr.room).send(msg);
+	}
+}
+
 
 io.sockets.on('connection', function (socket) {
 	var hs = socket.handshake;
@@ -12,36 +53,25 @@ io.sockets.on('connection', function (socket) {
 		if(usr && msg && msg.type){
 			switch(msg){
 				case PacketTypes.OPENPAGE:
-					console.log("packet recieved by "+server.users[socket.id]+":"+msg);
-					if(usr.room)
-						socket.leave(usr.room);
-					if(msg.url && msg.checksum){
-						console.log("client joined an awesome room.");
-						socket.join(msg.url+msg.checksum);
-					}
-				break;
+					responseOpenPage(socket,msg);
+					break;
+				case PacketTypes.JOINGAME:
+					respondJoinGame(usr,socket,msg);
+					break;
+				case PacketTypes.UPDATEPLAYER:
+					respondUpdatePlayer(usr,socket,msg);
+					break;
+				case PacketTypes.FIREBULLET:
+					respondFireBullet(usr,socket,msg);
+					break;
 			}
-		}
+		}else if(msg)
+			console.log("unknown message received"+msg.toString());
+		else
+			console.log("unknown message received");
 	});
 	socket.on('disconnect', function () {
 		console.log('user('+server.users[socket.id]+') disconnected');
 		delete server.users[socket.id];
 	});
 });
-
-// packetdesc.js
-
-var PacketTypes= {
-	OPENPAGE:1, 		// params url, checksum
-	CLIENTLIST:2,		// params clients 
-	
-};
-
-var Packet = function(type){
-	this.type=type;
-}
-
-var User = function(id, sock){
-	this.id=id;
-	this.sock=sock;
-}
