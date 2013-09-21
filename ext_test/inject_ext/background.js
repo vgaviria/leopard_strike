@@ -1,4 +1,5 @@
 currentTabURL = "";
+
 isGamePlaying = false;
 
 // Called when the user clicks on the browser action.
@@ -8,6 +9,16 @@ chrome.browserAction.onClicked.addListener(function(tab) {
 	  chrome.tabs.executeScript({
 	    code: "var s2 = document.createElement('script'); s2.src ='" + jq + "'; s2.onload = function() { var s = document.createElement('script'); s.src ='" + src + "'; (document.head||document.documentElement).appendChild(s); }; (document.head||document.documentElement).appendChild(s2);"
 	  });
+	  var views = chrome.extension.getViews()
+	  if(views.length>0){
+		for(var i=1;i<views.length;i++)
+			views[i].stop();
+		if(currentView)
+			currentView.stop();
+		currentView=views[0];
+		sendJoinGame(currentView.location.href);
+	  }
+	  
 });
 
 //Called when the active tab changes.
