@@ -154,10 +154,10 @@ function run(){
   },16.7);
 }
 //update game logic
-var KEY_UP = 38;
-var KEY_DOWN = 40;
-var KEY_LEFT = 37;
-var KEY_RIGHT = 39;
+var KEY_UP = 87;
+var KEY_DOWN = 83;
+var KEY_LEFT = 65;
+var KEY_RIGHT = 68;
 function update(){
   //move player
   if (KEY_UP in keysDown) { 
