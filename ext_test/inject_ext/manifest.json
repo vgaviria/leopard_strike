@@ -1,0 +1,34 @@
+{
+  "manifest_version": 2,
+
+  "name": "Injection Test",
+  "description": "This injects html on the extension button click",
+  "version": "1.0",
+
+  "permissions": [
+    "http://*/*",
+    "activeTab",
+    "tabs"
+  ],
+
+  "background": {
+    "scripts": ["background.js", "add_canvas_auto_load.js"],
+    "persistent": false
+  },
+
+  "browser_action": {
+    "default_icon": "icon.png",
+    "default_title": "Make this page red"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["http://*/*"],
+      "css": ["canvas.css"],
+      "js": ["jquery-1.10.2.js"]
+    }
+  ],
+
+  "web_accessible_resources": ["add_canvas_auto_load.js"]
+
+}
