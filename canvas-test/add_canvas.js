@@ -23,7 +23,19 @@ var Player = function(x,y){
   this.radius=8;
   this.color="red";
   this.lineWidth=3;
-  this.crosshair = {};
+  this.crosshair = {
+    x:0,
+    y:0,
+    angle:0,
+    radius: 3,
+    lineWidth: .5,
+    color: 'red',
+    update: function(parentX,parentY,x,y){
+      this.angle=Math.atan2((y-parentY),(x-parentX));
+      this.x=parentX+8*Math.cos(this.angle);
+      this.y=parentY+8*Math.sin(this.angle);
+    }
+  };
 }
 $(document).ready(function(){
   setup();
@@ -114,8 +126,13 @@ function initListeners(){
 //start interval
 function run(){
   drawInterval=setInterval(function(){
+    update();
     render();
-  },1000);
+  },16.7);
+}
+//update game logic
+function update(){
+  player.crosshair.update(player.x,player.y,mousePos.x,mousePos.y);
 }
 //rendering functions
 function render(){
@@ -151,10 +168,20 @@ function renderObstacles(){
   }
 }
 function renderPlayer(){
+  //player
   ctx.beginPath();
   ctx.arc(player.x, player.y, player.radius, 0, 2*Math.PI, false);
   ctx.lineWidth = player.lineWidth;
   ctx.strokeStyle = player.color;
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(255,0,0,.5)';
+  ctx.fill();
+  ctx.closePath();
+  //crosshair
+  ctx.beginPath();
+  ctx.arc(player.crosshair.x, player.crosshair.y, player.crosshair.radius, 0, 2*Math.PI, false);
+  ctx.lineWidth = player.crosshair.lineWidth;
+  ctx.strokeStyle = player.crosshair.color;
   ctx.stroke();
   ctx.fillStyle = 'rgba(255,0,0,.5)';
   ctx.fill();
