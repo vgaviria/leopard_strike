@@ -1,5 +1,5 @@
 require('./PacketDesc.js');
-var io = require('socket.io').listen(443);
+var io = require('socket.io').listen(8456);
 var server={
 	users:{},
 	rooms:{},
@@ -8,11 +8,18 @@ var server={
 
 
 
-function respondOpenPage(socket,msg){
+function respondOpenPage(usr,socket,msg){
 	console.log("packet recieved by "+server.users[socket.id]+":"+msg);
 	if(msg.url){
+		var url = msg.url;
+		if(usr.openpage){
+			usr.openpage.num--;
+			if(usr.openpage.num<=0)
+				delete server.pages[usr.openpage.url];
+		}
 		if(!server.pages[url])
 			server.pages[url]= new Page(url);
+		usr.openpage=server.pages[url];
 		server.pages[url].num++;
 		sendClientList(socket,server.pages[url]);
 	}
@@ -60,16 +67,15 @@ function respondUpdatePlayer(usr,socket,msg){
 
 
 io.sockets.on('connection', function (socket) {
-	socket.emit('message',{name:"adukyo"});
 	var hs = socket.handshake;
 	server.users[socket.id] = new User(socket.id,socket);
 	console.log('user('+server.users[socket.id]+') connected');
 	socket.on('message', function (msg) {
 		var usr = server.users[socket.id];
 		if(usr && msg && msg.type){
-			switch(msg){
+			switch(msg.type){
 				case PacketTypes.OPENPAGE:
-					responseOpenPage(socket,msg);
+					respondOpenPage(usr,socket,msg);
 					break;
 				case PacketTypes.JOINGAME:
 					respondJoinGame(usr,socket,msg);
