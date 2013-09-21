@@ -17,6 +17,7 @@ var Obstacle = function(x,y,width,height){
   this.lineWidth=3;
 }
 var player;
+var enemies=[];
 var Player = function(x,y){
   this.x=x;
   this.y=y;
@@ -45,6 +46,7 @@ function setup(){
   c_height=$(document.body).height()+10;
   canvasString="<canvas id='canvas' width='"+c_width+"' height='"+c_height+"'>Canvas Not Supported!</canvas>"
   $(document.body).append(canvasString);
+  $("#canvas").css({'position':'absolute','top':0,'left':0,'z-index':99999999});
   canvas = document.getElementById("canvas");
   ctx = canvas.getContext("2d");
 
@@ -63,7 +65,7 @@ function createObstacles(){
   });
   //delete -999 elements
   for (var i=obstacles.length-1;i>=0;i--){
-    if ((obstacles[i].x===-999||obstacles[i].y===-999)){
+    if (obstacles[i].x<=0||obstacles[i].y<=0) {
       obstacles.splice(i,1);
     }
   }
@@ -83,6 +85,7 @@ function createObstacles(){
     var starty=Math.floor(obstacles[i].y/CELL_SIZE);
     var endx=Math.ceil((obstacles[i].x+obstacles[i].width)/CELL_SIZE);
     var endy=Math.ceil((obstacles[i].y+obstacles[i].height)/CELL_SIZE);
+    if (endx>=grid.length || endy>=grid[0].length) { continue; }
     for (var j=startx;j<endx;j++){
       for (var k=starty;k<endy;k++){
         grid[j][k]=false;
@@ -133,24 +136,22 @@ function update(){
   player.crosshair.update(player.x,player.y,mousePos.x,mousePos.y);
 }
 //rendering functions
+var drawGrid=false;
 function render(){
   renderBG();
   renderObstacles();
   renderPlayer();
   ctx.fillStyle='black';
-  /*
-  * VIEW GRID
-  **/
-  /*
-  ctx.strokeStyle='red';
-  for (var i=0;i<grid.length;i++){
-    for (var j=0;j<grid[i].length;j++) {
-      if (!grid[i][j]) {
-        ctx.strokeRect(i*CELL_SIZE,j*CELL_SIZE,CELL_SIZE,CELL_SIZE);
-      }
-    };
+  if (drawGrid) {
+    ctx.strokeStyle='red';
+    for (var i=0;i<grid.length;i++){
+      for (var j=0;j<grid[i].length;j++) {
+        if (!grid[i][j]) {
+          ctx.strokeRect(i*CELL_SIZE,j*CELL_SIZE,CELL_SIZE,CELL_SIZE);
+        }
+      };
+    }
   }
-  */
 }
 function renderBG(){
   canvas.width=canvas.width;
