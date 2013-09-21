@@ -68,12 +68,12 @@ function setup(){
   c_height=$(document.body).height()+10;
   canvasString="<canvas id='canvas' width='"+c_width+"' height='"+c_height+"'>Canvas Not Supported!</canvas>"
   $(document.body).append(canvasString);
-  $("#canvas").css({'position':'absolute','top':0,'left':0,'z-index':99999999});
+  $("#canvas").css({'position':'absolute','top':0,'left':0,'z-index':99999999,'tabindex':1});
   canvas = document.getElementById("canvas");
   ctx = canvas.getContext("2d");
 
   createObstacles();
-  //createPlayer('red');
+  createPlayer('red');
 
   initListeners();
 }
@@ -144,8 +144,10 @@ function initListeners(){
   },false);
   document.addEventListener("keydown", function(e) {
     keysDown[e.keyCode] = true;
-
-    if(e.keyCode == 40 || e.keyCode == 38){
+    if (e.keyCode === KEY_ESC) {
+      stop();
+    }
+    if(e.keyCode === 40 || e.keyCode === 38){
       e.preventDefault();
     }
 
@@ -167,11 +169,16 @@ function run(){
     render();
   },16.7);
 }
+function stop(){
+  window.clearInterval(drawInterval);
+  $("#canvas").remove();
+}
 //update game logic
 var KEY_UP = 87;
 var KEY_DOWN = 83;
 var KEY_LEFT = 65;
 var KEY_RIGHT = 68;
+var KEY_ESC = 27;
 function update(){
   //move player
   if (KEY_UP in keysDown) { 
@@ -196,15 +203,6 @@ function update(){
   }
   player.crosshair.update(player.x,player.y,mousePos.x,mousePos.y);
 
-  //Scrolls the view to the player's x. The viewport will move.
-  // var winHeight = $(window).innerHeight();
-  // if (player.y < (player.y + (winHeight * 0.25)) ){
-  //   $(document).scrollTop(player.y - (winHeight * 0.25)); 
-  // }
-  // else if (player.y > (player.y + (winHeight * 0.75)) ){
-  //   $(document).scrollTop(player.y - (winHeight * 0.75));
-  // }
-
   var winHeight = $(window).innerHeight();
   $(document).scrollTop(player.y - (winHeight * 0.5));
   
@@ -213,6 +211,9 @@ function update(){
   }
   for(var i=bullets.length-1;i>=0;i--){
     bullets[i].move();
+    if (bullets[i].isDead()){
+      bullets.splice(i,1);
+    }
   }
 }
 //rendering functions
