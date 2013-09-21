@@ -1,5 +1,5 @@
 require('./PacketDesc.js');
-var io = require('socket.io').listen(8124);
+var io = require('socket.io').listen(443);
 var server={
 	users:{},
 	rooms:{},
