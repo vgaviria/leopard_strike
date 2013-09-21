@@ -12,7 +12,7 @@
   ],
 
   "background": {
-    "scripts": ["background.js"],
+    "scripts": ["background.js", "add_canvas_auto_load.js"],
     "persistent": false
   },
 
@@ -24,9 +24,11 @@
   "content_scripts": [
     {
       "matches": ["http://*/*"],
-      "css": ["mystyles.css"],
-      "js": ["jquery-1.10.2.js", "test.js"]
+      "css": ["canvas.css"],
+      "js": ["jquery-1.10.2.js"]
     }
-  ]
+  ],
+
+  "web_accessible_resources": ["add_canvas_auto_load.js"]
 
 }

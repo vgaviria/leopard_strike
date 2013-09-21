@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<!-- saved from url=(0062)http://git-scm.com/book/en/Git-Basics-Getting-a-Git-Repository -->
+<html lang="en" class="js fontface webkit chrome windows no-ie8 wf-adelle-n4-active wf-adelle-n7-active wf-active"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Git - Getting a Git Repository</title>
+<meta charset="utf-8">
+<meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+<link href="canvas.css" rel="stylesheet" type="text/css" />
+<link href="http://git-scm.com/favicon.png" rel="shortcut icon" type="image/png">
+<link href="http://git-scm.com/blog.rss" rel="alternate" title="Git - Blog" type="application/rss+xml">
+<link href="./sample_files/git-scm-abfa25c7922d4d2913bed5a6e67803b5.css" media="screen" rel="stylesheet" type="text/css">
+<script type="text/javascript" async="" id="gauges-tracker" data-site-id="4f919d1df5a1f504b3000026" src="./sample_files/track.js"></script><script src="./sample_files/modernizr-ed33bf57b65db2b87b251f7e92eb22bf.js" type="text/javascript"></script>
+<script src="./sample_files/modernizr-tests-7d276fc9b3f84590beb0bba47cdd823a.js" type="text/javascript"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="add_canvas.js"></script>
+<!--[if (gte IE 6)&(lte IE 8)]>
+<script src='/javascripts/selectivizr-min.js' type='text/javascript'></script>
+<![endif]-->
+<script src="./sample_files/jsq2fql.js" type="text/javascript"></script>
+<style type="text/css">.tk-adelle{font-family:"adelle",serif;}</style><link rel="stylesheet" href="http://use.typekit.com/c/1265dd/adelle:n4:n7.XK9:F:2,XKF:F:2/d?3bb2a6e53c9684ffdc9a98ff1f5b2a62be32f57674629b256bf45cc5d898bd33078f6d102fef89283fbbb31e1e08dbab19f40e05a4b4be3e89b3372a143e7a26dcd5dad130c72bab3e8fd8b99a9642fbd1ac9ca2f85adca09826901eba44606d532f918a18db21e3aa7eedc4c96415fb336454aeba9ccc4db2a429ad19d964ab58d4b37e4065f51b76f05e5784b3d8559dc1b815733d6d01c3628dc2ef213aaf691e3a89bf6dd61e2ad9429b23fe4aa8ae920a330c526bf40743ee5dfcd44574840a956bad758ed0eee2b5a93c60d4e7fb298bff1da10e582117053d1df952252f3c620756aa9c01af18b814425fcac6691a37beec766e06872a3e540e07e591a00479af59d5422d070cd9e6028fcffcbc624bd8c4a7d13947ef50a81c4a28244fad90bde4a302"><script>
+  //<![CDATA[
+    try{Typekit.load();}catch(e){}
+  //]]>
+</script>
+<script type="text/javascript">var NREUMQ=NREUMQ||[];NREUMQ.push(["mark","firstbyte",new Date().getTime()]);</script><style type="text/css"></style></head>
+<body id="documentation">
+<div class="inner">
+<header>
+<a href="http://git-scm.com/"><img src="./sample_files/logo@2x.png" width="110" height="46" alt="Git"></a>
+<span id="tagline">
+<em>--</em>local-branching-on-the-cheap
+</span>
+<form action="http://git-scm.com/search/results" id="search">
+<input id="search-text" name="search" placeholder="Search entire site..." autocomplete="off" type="text">
+</form>
+<div id="search-results"></div>
+</header>
+
+</div>
+<div class="inner">
+<div id="content-wrapper">
+<aside class="sidebar">
+<nav>
+<ul>
+<li><a href="http://git-scm.com/about" class="">About</a></li>
+<li>
+<a href="http://git-scm.com/doc" class="active">Documentation</a>
+<ul class="expanded">
+<li><a href="http://git-scm.com/docs" class="">Reference</a></li>
+<li><a href="http://git-scm.com/book" class="active">Book</a></li>
+<li><a href="http://git-scm.com/blog" class="">Blog</a></li>
+<li><a href="http://git-scm.com/videos" class="">Videos</a></li>
+<li><a href="http://git-scm.com/doc/ext" class="">External Links</a></li>
+</ul>
+</li>
+<li><a href="http://git-scm.com/blog" class="">Blog</a></li>
+<li>
+<a href="http://git-scm.com/downloads" class="">Downloads</a>
+<ul class="">
+<li><a href="http://git-scm.com/downloads/guis" class="">GUI Clients</a></li>
+<li><a href="http://git-scm.com/downloads/logos" class="">Logos</a></li>
+</ul>
+</li>
+<li><a href="http://git-scm.com/community" class="">Community</a></li>
+</ul>
+</nav>
+<hr class="sidebar">
+  <p>Download this book in <a href="https://github.s3.amazonaws.com/media/progit.en.pdf">PDF</a>, <a href="https://github.s3.amazonaws.com/media/pro-git.en.mobi">mobi</a>, or <a href="https://github.s3.amazonaws.com/media/progit.epub">ePub</a> form for free.</p>
+
+  <p>
+This book is translated into 
+  <a href="http://git-scm.com/book/de">German</a>,
+  <a href="http://git-scm.com/book/zh">中文</a>,
+  <a href="http://git-scm.com/book/fr">French</a>,
+  <a href="http://git-scm.com/book/ja">Japanese</a>,
+  <a href="http://git-scm.com/book/nl">Dutch</a>,
+  <a href="http://git-scm.com/book/ru">Russian</a>,
+  <a href="http://git-scm.com/book/ko">Korean</a>,
+  <a href="http://git-scm.com/book/pt-br">Brazilian Portuguese</a> and
+  <a href="http://git-scm.com/book/cs">Czech</a>.
+</p>
+<p>
+Partial translations available in
+  <a href="http://git-scm.com/book/ar">Arabic</a>,
+  <a href="http://git-scm.com/book/es">Spanish</a>,
+  <a href="http://git-scm.com/book/id">Indonesian</a>,
+  <a href="http://git-scm.com/book/it">Italian</a>,
+  <a href="http://git-scm.com/book/mk">Macedonian</a>,
+  <a href="http://git-scm.com/book/pl">Polish</a>,
+  <a href="http://git-scm.com/book/tr">Turkish</a>,
+  <a href="http://git-scm.com/book/zh-tw">Taiwanese Mandarin</a>,
+</p>
+<p>
+Translation started for
+  <a href="http://git-scm.com/book/es-ni">Spanish (Nicaragua)</a>,
+  <a href="http://git-scm.com/book/ca">Catalan</a>,
+  <a href="http://git-scm.com/book/th">Thai</a> and
+  <a href="http://git-scm.com/book/fi">Finnish</a>.
+</p>
+<hr class="sidebar">
+<p>
+The source of this book and the translations is <a href="https://github.com/progit/progit">hosted on GitHub.</a><br>
+Patches, suggestions, and comments are welcome.
+</p>
+
+    <h4>Related Material</h4>
+  <ul class="related-material">
+      <li class="reference">
+      <strong><a href="http://git-scm.com/ref/git-clone">git-clone</a></strong>
+        in <a href="http://git-scm.com/docs">Reference</a>
+      </li>
+      <li class="reference">
+      <strong><a href="http://git-scm.com/ref/git-add">git-add</a></strong>
+        in <a href="http://git-scm.com/docs">Reference</a>
+      </li>
+      <li class="reference">
+      <strong><a href="http://git-scm.com/ref/git-init">git-init</a></strong>
+        in <a href="http://git-scm.com/docs">Reference</a>
+      </li>
+      <li class="reference">
+      <strong><a href="http://git-scm.com/ref/git-commit">git-commit</a></strong>
+        in <a href="http://git-scm.com/docs">Reference</a>
+      </li>
+  </ul>
+
+
+</aside>
+<div id="content">
+
+
+<div id="book-chapters">
+  <a class="dropdown-trigger" id="book-chapters-trigger" data-panel-id="chapters-dropdown" href="http://git-scm.com/book/en/Git-Basics-Getting-a-Git-Repository#">Chapters ▾</a>
+<div class="dropdown-panel" id="chapters-dropdown">
+  <div class="three-column">
+    <div class="column-left">
+      <ol class="book-toc">
+  <li class="chapter">
+  <h2>1. <a href="http://git-scm.com/book/en/Getting-Started">Getting Started</a></h2>
+    <ol>
+          <li>
+            1.1
+            <a href="http://git-scm.com/book/en/Getting-Started-About-Version-Control">About Version Control</a>
+          </li>
+          <li>
+            1.2
+            <a href="http://git-scm.com/book/en/Getting-Started-A-Short-History-of-Git">A Short History of Git</a>
+          </li>
+          <li>
+            1.3
+            <a href="http://git-scm.com/book/en/Getting-Started-Git-Basics">Git Basics</a>
+          </li>
+          <li>
+            1.4
+            <a href="http://git-scm.com/book/en/Getting-Started-Installing-Git">Installing Git</a>
+          </li>
+          <li>
+            1.5
+            <a href="http://git-scm.com/book/en/Getting-Started-First-Time-Git-Setup">First-Time Git Setup</a>
+          </li>
+          <li>
+            1.6
+            <a href="http://git-scm.com/book/en/Getting-Started-Getting-Help">Getting Help</a>
+          </li>
+          <li>
+            1.7
+            <a href="http://git-scm.com/book/en/Getting-Started-Summary">Summary</a>
+          </li>
+    </ol>
+  </li>
+  <li class="chapter">
+  <h2>2. <a href="http://git-scm.com/book/en/Git-Basics">Git Basics</a></h2>
+    <ol>
+          <li>
+            2.1
+            <a href="./sample_files/sample.html">Getting a Git Repository</a>
+          </li>
+          <li>
+            2.2
+            <a href="http://git-scm.com/book/en/Git-Basics-Recording-Changes-to-the-Repository">Recording Changes to the Repository</a>
+          </li>
+          <li>
+            2.3
+            <a href="http://git-scm.com/book/en/Git-Basics-Viewing-the-Commit-History">Viewing the Commit History</a>
+          </li>
+          <li>
+            2.4
+            <a href="http://git-scm.com/book/en/Git-Basics-Undoing-Things">Undoing Things</a>
+          </li>
+          <li>
+            2.5
+            <a href="http://git-scm.com/book/en/Git-Basics-Working-with-Remotes">Working with Remotes</a>
+          </li>
+          <li>
+            2.6
+            <a href="http://git-scm.com/book/en/Git-Basics-Tagging">Tagging</a>
+          </li>
+          <li>
+            2.7
+            <a href="http://git-scm.com/book/en/Git-Basics-Tips-and-Tricks">Tips and Tricks</a>
+          </li>
+          <li>
+            2.8
+            <a href="http://git-scm.com/book/en/Git-Basics-Summary">Summary</a>
+          </li>
+    </ol>
+  </li>
+  <li class="chapter">
+  <h2>3. <a href="http://git-scm.com/book/en/Git-Branching">Git Branching</a></h2>
+    <ol>
+          <li>
+            3.1
+            <a href="http://git-scm.com/book/en/Git-Branching-What-a-Branch-Is">What a Branch Is</a>
+          </li>
+          <li>
+            3.2
+            <a href="http://git-scm.com/book/en/Git-Branching-Basic-Branching-and-Merging">Basic Branching and Merging</a>
+          </li>
+          <li>
+            3.3
+            <a href="http://git-scm.com/book/en/Git-Branching-Branch-Management">Branch Management</a>
+          </li>
+          <li>
+            3.4
+            <a href="http://git-scm.com/book/en/Git-Branching-Branching-Workflows">Branching Workflows</a>
+          </li>
+          <li>
+            3.5
+            <a href="http://git-scm.com/book/en/Git-Branching-Remote-Branches">Remote Branches</a>
+          </li>
+          <li>
+            3.6
+            <a href="http://git-scm.com/book/en/Git-Branching-Rebasing">Rebasing</a>
+          </li>
+          <li>
+            3.7
+            <a href="http://git-scm.com/book/en/Git-Branching-Summary">Summary</a>
+          </li>
+    </ol>
+  </li>
+</ol>
+
+    </div>
+    <div class="column-middle">
+      <ol class="book-toc">
+  <li class="chapter">
+  <h2>4. <a href="http://git-scm.com/book/en/Git-on-the-Server">Git on the Server</a></h2>
+    <ol>
+          <li>
+            4.1
+            <a href="http://git-scm.com/book/en/Git-on-the-Server-The-Protocols">The Protocols</a>
+          </li>
+          <li>
+            4.2
+            <a href="http://git-scm.com/book/en/Git-on-the-Server-Getting-Git-on-a-Server">Getting Git on a Server</a>
+          </li>
+          <li>
+            4.3
+            <a href="http://git-scm.com/book/en/Git-on-the-Server-Generating-Your-SSH-Public-Key">Generating Your SSH Public Key</a>
+          </li>
+          <li>
+            4.4
+            <a href="http://git-scm.com/book/en/Git-on-the-Server-Setting-Up-the-Server">Setting Up the Server</a>
+          </li>
+          <li>
+            4.5
+            <a href="http://git-scm.com/book/en/Git-on-the-Server-Public-Access">Public Access</a>
+          </li>
+          <li>
+            4.6
+            <a href="http://git-scm.com/book/en/Git-on-the-Server-GitWeb">GitWeb</a>
+          </li>
+          <li>
+            4.7
+            <a href="http://git-scm.com/book/en/Git-on-the-Server-Gitosis">Gitosis</a>
+          </li>
+          <li>
+            4.8
+            <a href="http://git-scm.com/book/en/Git-on-the-Server-Gitolite">Gitolite</a>
+          </li>
+          <li>
+            4.9
+            <a href="http://git-scm.com/book/en/Git-on-the-Server-Git-Daemon">Git Daemon</a>
+          </li>
+          <li>
+            4.10
+            <a href="http://git-scm.com/book/en/Git-on-the-Server-Hosted-Git">Hosted Git</a>
+          </li>
+          <li>
+            4.11
+            <a href="http://git-scm.com/book/en/Git-on-the-Server-Summary">Summary</a>
+          </li>
+    </ol>
+  </li>
+  <li class="chapter">
+  <h2>5. <a href="http://git-scm.com/book/en/Distributed-Git">Distributed Git</a></h2>
+    <ol>
+          <li>
+            5.1
+            <a href="http://git-scm.com/book/en/Distributed-Git-Distributed-Workflows">Distributed Workflows</a>
+          </li>
+          <li>
+            5.2
+            <a href="http://git-scm.com/book/en/Distributed-Git-Contributing-to-a-Project">Contributing to a Project</a>
+          </li>
+          <li>
+            5.3
+            <a href="http://git-scm.com/book/en/Distributed-Git-Maintaining-a-Project">Maintaining a Project</a>
+          </li>
+          <li>
+            5.4
+            <a href="http://git-scm.com/book/en/Distributed-Git-Summary">Summary</a>
+          </li>
+    </ol>
+  </li>
+  <li class="chapter">
+  <h2>6. <a href="http://git-scm.com/book/en/Git-Tools">Git Tools</a></h2>
+    <ol>
+          <li>
+            6.1
+            <a href="http://git-scm.com/book/en/Git-Tools-Revision-Selection">Revision Selection</a>
+          </li>
+          <li>
+            6.2
+            <a href="http://git-scm.com/book/en/Git-Tools-Interactive-Staging">Interactive Staging</a>
+          </li>
+          <li>
+            6.3
+            <a href="http://git-scm.com/book/en/Git-Tools-Stashing">Stashing</a>
+          </li>
+          <li>
+            6.4
+            <a href="http://git-scm.com/book/en/Git-Tools-Rewriting-History">Rewriting History</a>
+          </li>
+          <li>
+            6.5
+            <a href="http://git-scm.com/book/en/Git-Tools-Debugging-with-Git">Debugging with Git</a>
+          </li>
+          <li>
+            6.6
+            <a href="http://git-scm.com/book/en/Git-Tools-Submodules">Submodules</a>
+          </li>
+          <li>
+            6.7
+            <a href="http://git-scm.com/book/en/Git-Tools-Subtree-Merging">Subtree Merging</a>
+          </li>
+          <li>
+            6.8
+            <a href="http://git-scm.com/book/en/Git-Tools-Summary">Summary</a>
+          </li>
+    </ol>
+  </li>
+</ol>
+
+    </div>
+    <div class="column-right">
+      <ol class="book-toc">
+  <li class="chapter">
+  <h2>7. <a href="http://git-scm.com/book/en/Customizing-Git">Customizing Git</a></h2>
+    <ol>
+          <li>
+            7.1
+            <a href="http://git-scm.com/book/en/Customizing-Git-Git-Configuration">Git Configuration</a>
+          </li>
+          <li>
+            7.2
+            <a href="http://git-scm.com/book/en/Customizing-Git-Git-Attributes">Git Attributes</a>
+          </li>
+          <li>
+            7.3
+            <a href="http://git-scm.com/book/en/Customizing-Git-Git-Hooks">Git Hooks</a>
+          </li>
+          <li>
+            7.4
+            <a href="http://git-scm.com/book/en/Customizing-Git-An-Example-Git-Enforced-Policy">An Example Git-Enforced Policy</a>
+          </li>
+          <li>
+            7.5
+            <a href="http://git-scm.com/book/en/Customizing-Git-Summary">Summary</a>
+          </li>
+    </ol>
+  </li>
+  <li class="chapter">
+  <h2>8. <a href="http://git-scm.com/book/en/Git-and-Other-Systems">Git and Other Systems</a></h2>
+    <ol>
+          <li>
+            8.1
+            <a href="http://git-scm.com/book/en/Git-and-Other-Systems-Git-and-Subversion">Git and Subversion</a>
+          </li>
+          <li>
+            8.2
+            <a href="http://git-scm.com/book/en/Git-and-Other-Systems-Migrating-to-Git">Migrating to Git</a>
+          </li>
+          <li>
+            8.3
+            <a href="http://git-scm.com/book/en/Git-and-Other-Systems-Summary">Summary</a>
+          </li>
+    </ol>
+  </li>
+  <li class="chapter">
+  <h2>9. <a href="http://git-scm.com/book/en/Git-Internals">Git Internals</a></h2>
+    <ol>
+          <li>
+            9.1
+            <a href="http://git-scm.com/book/en/Git-Internals-Plumbing-and-Porcelain">Plumbing and Porcelain</a>
+          </li>
+          <li>
+            9.2
+            <a href="http://git-scm.com/book/en/Git-Internals-Git-Objects">Git Objects</a>
+          </li>
+          <li>
+            9.3
+            <a href="http://git-scm.com/book/en/Git-Internals-Git-References">Git References</a>
+          </li>
+          <li>
+            9.4
+            <a href="http://git-scm.com/book/en/Git-Internals-Packfiles">Packfiles</a>
+          </li>
+          <li>
+            9.5
+            <a href="http://git-scm.com/book/en/Git-Internals-The-Refspec">The Refspec</a>
+          </li>
+          <li>
+            9.6
+            <a href="http://git-scm.com/book/en/Git-Internals-Transfer-Protocols">Transfer Protocols</a>
+          </li>
+          <li>
+            9.7
+            <a href="http://git-scm.com/book/en/Git-Internals-Maintenance-and-Data-Recovery">Maintenance and Data Recovery</a>
+          </li>
+          <li>
+            9.8
+            <a href="http://git-scm.com/book/en/Git-Internals-Summary">Summary</a>
+          </li>
+    </ol>
+  </li>
+</ol>
+
+      <ol class="book-toc">
+        <li class="chapter">
+          <h2><a href="http://git-scm.com/book/commands">Index of Commands</a></h2>
+        </li>
+      </ol>
+    </div>
+  </div>
+ </div>
+
+</div>
+
+<div id="main" class="book">
+    <h1>2.1 Git Basics - Getting a Git Repository</h1>
+  <div><h2>Getting a Git Repository</h2>
+
+<p>You can get a Git project using two main approaches. The first takes an existing project or directory and imports it into Git. The second clones an existing Git repository from another server.</p>
+
+<h3 id="Initializing-a-Repository-in-an-Existing-Directory"><a href="http://git-scm.com/book/en/Git-Basics-Getting-a-Git-Repository#Initializing-a-Repository-in-an-Existing-Directory">Initializing a Repository in an Existing Directory</a></h3>
+
+<p>If you’re starting to track an existing project in Git, you need to go to the project’s directory and type</p>
+
+<pre><code>$ git init
+</code></pre>
+
+<p>This creates a new subdirectory named <code>.git</code> that contains all of your necessary repository files — a Git repository skeleton. At this point, nothing in your project is tracked yet. (See <em>Chapter 9</em> for more information about exactly what files are contained in the <code>.git</code> directory you just created.)</p>
+
+<p>If you want to start version-controlling existing files (as opposed to an empty directory), you should probably begin tracking those files and do an initial commit. You can accomplish that with a few <code>git add</code> commands that specify the files you want to track, followed by a commit:</p>
+
+<pre><code>$ git add *.c
+$ git add README
+$ git commit -m 'initial project version'
+</code></pre>
+
+<p>We’ll go over what these commands do in just a minute. At this point, you have a Git repository with tracked files and an initial commit.</p>
+
+<h3 id="Cloning-an-Existing-Repository"><a href="http://git-scm.com/book/en/Git-Basics-Getting-a-Git-Repository#Cloning-an-Existing-Repository">Cloning an Existing Repository</a></h3>
+
+<p>If you want to get a copy of an existing Git repository — for example, a project you’d like to contribute to — the command you need is <code>git clone</code>. If you’re familiar with other VCS systems such as Subversion, you’ll notice that the command is <code>clone</code> and not <code>checkout</code>. This is an important distinction — Git receives a copy of nearly all data that the server has. Every version of every file for the history of the project is pulled down when you run <code>git clone</code>. In fact, if your server disk gets corrupted, you can use any of the clones on any client to set the server back to the state it was in when it was cloned (you may lose some server-side hooks and such, but all the versioned data would be there — see <em>Chapter 4</em> for more details).</p>
+
+<p>You clone a repository with <code>git clone [url]</code>. For example, if you want to clone the Ruby Git library called Grit, you can do so like this:</p>
+
+<pre><code>$ git clone git://github.com/schacon/grit.git
+</code></pre>
+
+<p>That creates a directory named <code>grit</code>, initializes a <code>.git</code> directory inside it, pulls down all the data for that repository, and checks out a working copy of the latest version. If you go into the new <code>grit</code> directory, you’ll see the project files in there, ready to be worked on or used. If you want to clone the repository into a directory named something other than grit, you can specify that as the next command-line option:</p>
+
+<pre><code>$ git clone git://github.com/schacon/grit.git mygrit
+</code></pre>
+
+<p>That command does the same thing as the previous one, but the target directory is called <code>mygrit</code>.</p>
+
+<p>Git has a number of different transfer protocols you can use. The previous example uses the <code>git://</code> protocol, but you may also see <code>http(s)://</code> or <code>user@server:/path.git</code>, which uses the SSH transfer protocol. <em>Chapter 4</em> will introduce all of the available options the server can set up to access your Git repository and the pros and cons of each.</p>
+
+<div id="nav"><a href="http://git-scm.com/book/en/Git-Basics">prev</a> | <a href="http://git-scm.com/book/en/Git-Basics-Recording-Changes-to-the-Repository">next</a></div></div>
+</div>
+
+</div>
+</div>
+<footer>
+<div class="site-source">
+This <a href="https://github.com/github/gitscm-next/blob/master/README.md#license">open sourced</a> site is <a href="https://github.com/github/gitscm-next">hosted on GitHub.</a><br>
+Patches, suggestions, and comments are welcome.
+</div>
+<div class="sfc-member">
+Git is a member of <a href="http://git-scm.com/sfc">Software Freedom Conservancy</a>
+</div>
+</footer>
+<script src="./sample_files/jquery-1.7.1.min-8995aa22fa589eacd71ee464eae9f9cc.js" type="text/javascript"></script>
+<script src="./sample_files/jquery-ui-1.8.18.custom.min-b258993d5959146bc9695f9448caa100.js" type="text/javascript"></script>
+<script src="./sample_files/jquery.defaultvalue-a940d9c1e0e4d571bb2d6659cfc22c32.js" type="text/javascript"></script>
+<script src="./sample_files/session.min-73f8dc381c79bc40b3ba3bd0fa561541.js" type="text/javascript"></script>
+<script src="./sample_files/site-4c5284105c7e9fbef4b7b2dedb73c839.js" type="text/javascript"></script>
+
+</div><script type="text/javascript" src="./sample_files/jsapi"></script>
+<script type="text/javascript">if (!NREUMQ.f) { NREUMQ.f=function() {
+NREUMQ.push(["load",new Date().getTime()]);
+var e=document.createElement("script");
+e.type="text/javascript";
+e.src=(("http:"===document.location.protocol)?"http:":"https:") + "//" +
+  "js-agent.newrelic.com/nr-100.js";
+document.body.appendChild(e);
+if(NREUMQ.a)NREUMQ.a();
+};
+NREUMQ.a=window.onload;window.onload=NREUMQ.f;
+};
+NREUMQ.push(["nrfj","beacon-6.newrelic.com","20c4a8c482",454369,"dl5cQkcLXF9XRBoHW1paQRlGAVNHW1lb",0,102,new Date().getTime(),"","","","",""]);</script>
+
+<script type="text/javascript" src="./sample_files/nr-100.js"></script></body></html>
