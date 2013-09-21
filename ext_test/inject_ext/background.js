@@ -15,6 +15,7 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
 	chrome.tabs.get(activeInfo.tabId, function(tab) {
 		if(tab.url){
 			currentTabURL = tab.url;
+			sendOpenPage(currentTabURL);
 		}
 	});
 });
