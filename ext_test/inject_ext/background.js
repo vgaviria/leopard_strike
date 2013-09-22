@@ -15,8 +15,11 @@ chrome.runtime.onConnect.addListener(function(port) {
 			msg.type = PacketTypes.UPDATEPLAYER;
 			socket.emit('message',msg);
 		}
-		else{
+		else if(msg.type){
 			socket.emit('message',msg);
+		}
+		if(msg.quit && isConnected){
+			sendJoinGame("");
 		}
   });
   port.onDisconnect.addListener(function(){
@@ -59,6 +62,8 @@ chrome.tabs.onUpdated.addListener(function(tabid, changeinfo, tabuh) {
 		if(tab.url && isConnected){
 			currentTabURL = tab.url;
 			currentTabId = tab.id;
+			if(changeinfo.url && tabid==playingTabId)
+				sendJoinGame(""); // leave game
 			sendOpenPage(currentTabURL);
 		}
 	});

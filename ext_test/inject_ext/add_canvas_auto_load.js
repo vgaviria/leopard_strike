@@ -320,8 +320,9 @@ function stop(){
     ctx.fillText("Game Over!",$(window).innerWidth()/3,player.y-($(window).innerHeight()/4));
     ctx.fillText("Press ESC to go back to browsing",$(window).innerWidth()/3,player.y-($(window).innerHeight()/4)+30);
     if(keysDown[KEY_ESC]){
-      reallyStop();
-    }
+		reallyStop();
+		port.postMessage({quit:"now"});
+	}
   },16.7);
 }
 function reallyStop(){
