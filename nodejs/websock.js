@@ -23,6 +23,7 @@ function respondOpenPage(usr,socket,msg){
 		}
 		usr.openpage=server.pages[url];
 		server.pages[url].num++;
+		console.log('usr joined page:'+url+" total:"+server.pages[url].num);
 		sendClientList(socket,server.pages[url]);
 	}
 }
@@ -54,12 +55,14 @@ function constructNewPlayerIDPacket(id)
 }
 function respondJoinGame(usr,socket,msg){
 	if(msg.url){
-		console.log("game joined! "+msg.url);
 		if(usr.room){
+			
+			console.log("player left("+usr.pid+"): "+msg.url);
 			socket.leave(usr.room);
 			var room = server.rooms[usr.room];
 			room.numPlayers--;
 			if(room.numPlayers<1){
+				console.log("game closed:"+msg.url);
 				if(room.timer)
 					clearInterval(room.timer);
 				delete server.rooms[usr.room];
@@ -67,13 +70,14 @@ function respondJoinGame(usr,socket,msg){
 		}
 		var newRoom=msg.url;
 		// currently rooms are assigned as msg.url+msg.checksum
-		console.log("client joined an awesome room.");
 		socket.join(newRoom);
 		if(!server.rooms[newRoom]){
 			server.rooms[newRoom]=new Room(newRoom);
+			console.log("new room created:"+newRoom);
 			setupRoom(server.rooms[newRoom]);
 		}
 		server.rooms[newRoom].addPlayer(usr);
+		console.log("client joined room("+usr.pid+"):"+newRoom);
 		usr.x=100;
 		usr.y=100;
 		usr.deg=0;
@@ -94,6 +98,7 @@ function respondFireBullet(usr,socket,msg){
 function respondUpdatePlayer(usr,socket,msg){
 	if(usr.pid && msg.x && msg.y && msg.deg)	
 	{
+		//console.log(msg);
 		usr.x=msg.x;
 		usr.y=msg.y;
 		usr.deg=msg.deg;
@@ -135,7 +140,7 @@ io.sockets.on('connection', function (socket) {
 });
 
 function setupRoom(room){
-	room.timer=setInterval(updateRoom,16,room);
+	room.timer=setInterval(updateRoom,1000,room);
 }
 
 function updateRoom(room){
@@ -153,5 +158,7 @@ function updateRoom(room){
 		};
 		update.players[player.pid]=tmp;
 	}
+	console.log(room.players);
+	console.log(room.id);
 	io.sockets.in(room.id).emit('message',update);
 }
