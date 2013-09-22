@@ -110,8 +110,8 @@ function setup(){
   ctx = canvas.getContext("2d");
 
   createObstacles();
-  player=createPlayer(1,'red');
-	players[player.pid]=player;
+  //player=createPlayer(1,'red');
+//	players[player.pid]=player;
   initListeners();
 }
 //generate obstacles based on document
