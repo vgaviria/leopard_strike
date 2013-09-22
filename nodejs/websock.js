@@ -87,6 +87,7 @@ function respondJoinGame(usr,socket,msg){
 		usr.x=100;
 		usr.y=100;
 		usr.deg=0;
+		usr.hp=50;
 		usr.color= randomColor();
 		usr.room=newRoom;
 		for( var key in server.rooms[newRoom].players){
@@ -112,6 +113,7 @@ function respondUpdatePlayer(usr,socket,msg){
 		usr.x=msg.x;
 		usr.y=msg.y;
 		usr.deg=msg.deg;
+		usr.hp=msg.hp;
 		usr.bullets= usr.bullets.concat(msg.bullets);
 		//Do some collision detection here.
 	}
@@ -167,6 +169,7 @@ function updateRoom(room){
 			x:player.x,
 			y:player.y,
 			deg:player.deg,
+			hp:player.hp,
 			rgba:player.color
 		};
 		

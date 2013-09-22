@@ -46,12 +46,14 @@ port.onMessage.addListener(function(msg) {
 			if(ours){
 				ours.x=p.x;
 				ours.y=p.y;
+				ours.health=p.hp;
 				ours.crosshair.angle=p.deg*Math.PI/180;
 			}else{
 				var newPlayer = new Player(p.x,p.y);
 				newPlayer.pid =key;
 				newPlayer.x=p.x;
 				newPlayer.y=p.y;
+				newPlayer.health=p.hp;
 				newPlayer.crosshair.angle=p.deg*Math.PI/180;
 				newPlayer.color=p.color;
 				players[key]=newPlayer;
@@ -297,7 +299,7 @@ function run(){
     render();
   	if(player){
   		if(updateCounter--<0){
-  			port.postMessage({pid:player.pid,x:player.x,y:player.y,deg:player.crosshair.angle*180/Math.PI,bullets:newBullets});
+  			port.postMessage({pid:player.pid,x:player.x,y:player.y,deg:player.crosshair.angle*180/Math.PI,hp:player.health,bullets:newBullets});
   			newBullets=[];
   			updateCounter=8;
   		}
