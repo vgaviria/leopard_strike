@@ -1,5 +1,6 @@
 function respondClientList(socket,msg){
 	//notify user via extension
+	chrome.browserAction.setBadgeText({text:msg.clients.toString()});
 }
 function respondCreatePlayer(socket,msg){
 	//construct player on the canvas.
@@ -31,7 +32,7 @@ function sendJoinGame(url){
 }
 
 
-var socket = io.connect('http://infinitegde-nodejs.jit.su/');//"http://localhost:8456/");//
+var socket = io.connect('http://25.17.237.229:8456');//"http://localhost:8456/");//
   socket.on('connect', function () {
     socket.on('message', function (msg) {
 		if(msg && msg.type){
