@@ -92,9 +92,7 @@ function respondFireBullet(usr,socket,msg){
 }
 
 function respondUpdatePlayer(usr,socket,msg){
-	console.log(msg);
-	console.log(usr);
-	if(usr.pid && msg.x && msg.y && msg.deg)
+	if(usr.pid && msg.x && msg.y && msg.deg)	
 	{
 		usr.x=msg.x;
 		usr.y=msg.y;

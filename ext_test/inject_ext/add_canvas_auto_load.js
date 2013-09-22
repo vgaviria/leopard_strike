@@ -40,7 +40,14 @@ port.onMessage.addListener(function(msg) {
 			if(ours){
 				ours.x=p.x;
 				ours.y=p.y;
-				ours.deg=p.deg;
+				ours.crosshair.angle=p.deg*Math.PI/180;
+			}else{
+				var newPlayer = new Player(ours.x,ours.y);
+				newPlayer.pid =key;
+				newPlayer.x=p.x;
+				newPlayer.y=p.y;
+				newPlayer.crosshair.angle=p.deg*Math.PI/180;
+				newPlayer.color=p.color;
 			}
 		}
 	}
