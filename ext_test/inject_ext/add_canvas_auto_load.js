@@ -217,64 +217,7 @@ var KEY_LEFT = 65;
 var KEY_RIGHT = 68;
 var KEY_ESC = 27;
 function update(){
-  if(!player)
-  return;
-  //move player
-  if (KEY_UP in keysDown) { 
-    if (player.y-player.radius>=0) {
-      player.y -= player.speed;
-    }
-  }
-  if (KEY_DOWN in keysDown) { 
-    if (player.y+player.radius<=canvas.height) {
-      player.y += player.speed;
-    }
-  }
-  if (KEY_LEFT in keysDown) { 
-    if (player.x-player.radius >= 0) {
-      player.x -= player.speed;
-    }
-  }
-  if (KEY_RIGHT in keysDown) { 
-    if (player.x+player.radius <= canvas.width) {
-      player.x += player.speed;
-    }
-  }
 
-  //player collision with static objects
-  collided=[];
-  for (i=0;i<obstacles.length;i++) {
-    if (  player.x+player.radius>obstacles[i].x &&
-          player.x-player.radius<obstacles[i].x+obstacles[i].width &&
-          player.y+player.radius>obstacles[i].y &&
-          player.y-player.radius<obstacles[i].y+obstacles[i].height)
-    {
-      collided.push(obstacles[i]);
-    }
-  }
-  for (i=0;i<collided.length;i++){
-    if ((KEY_RIGHT in keysDown) && player.x<collided[i].x) {
-      player.x=collided[i].x-player.radius;
-    }
-    //colliding from right
-    if ((KEY_LEFT in keysDown) && player.x>collided[i].x+collided[i].width) {
-      player.x=collided[i].x+collided[i].width+player.radius;
-    }
-    //colliding from below
-    if ((KEY_UP in keysDown) && player.y>collided[i].y) {
-      player.y=collided[i].y+collided[i].height+player.radius;
-    }
-    //colliding from above
-    if ((KEY_DOWN in keysDown) && player.y<collided[i].y+collided[i].height) {
-      player.y=collided[i].y-player.radius;
-    }
-  }
-
-  player.crosshair.update(player.x,player.y,mousePos.x,mousePos.y);
-
-  var winHeight = $(window).innerHeight();
-  $(document).scrollTop(player.y - (winHeight * 0.5));
-  
   if(player && 'mouse' in keysDown){
     bullets.push(new Bullet(mousePos.x,mousePos.y));
   }
@@ -324,6 +267,57 @@ function update(){
   for (var i=bullets.length-1;i>=0;i--) {
     if(bullets[i].isDead()) { bullets.splice(i,1); }
   }
+  if(!player)
+  return;
+  //move player
+  if (KEY_UP in keysDown) { 
+    if (player.y-player.radius>=0) {
+      player.y -= player.speed;
+    }
+  }
+  if (KEY_DOWN in keysDown) { 
+    if (player.y+player.radius<=canvas.height) {
+      player.y += player.speed;
+    }
+  }
+  if (KEY_LEFT in keysDown) { 
+    if (player.x-player.radius >= 0) {
+      player.x -= player.speed;
+    }
+  }
+  if (KEY_RIGHT in keysDown) { 
+    if (player.x+player.radius <= canvas.width) {
+      player.x += player.speed;
+    }
+  }//player collision with static objects
+  collided=[];
+  for (i=0;i<obstacles.length;i++) {
+    if (  player.x+player.radius>obstacles[i].x &&
+          player.x-player.radius<obstacles[i].x+obstacles[i].width &&
+          player.y+player.radius>obstacles[i].y &&
+          player.y-player.radius<obstacles[i].y+obstacles[i].height)
+    {
+      collided.push(obstacles[i]);
+    }
+  }
+  for (i=0;i<collided.length;i++){
+    if ((KEY_RIGHT in keysDown) && player.x<collided[i].x) {
+      player.x=collided[i].x-player.radius;
+    }
+    //colliding from right
+    if ((KEY_LEFT in keysDown) && player.x>collided[i].x+collided[i].width) {
+      player.x=collided[i].x+collided[i].width+player.radius;
+    }
+    //colliding from below
+    if ((KEY_UP in keysDown) && player.y>collided[i].y) {
+      player.y=collided[i].y+collided[i].height+player.radius;
+    }
+    //colliding from above
+    if ((KEY_DOWN in keysDown) && player.y<collided[i].y+collided[i].height) {
+      player.y=collided[i].y-player.radius;
+    }
+  }
+
   player.crosshair.update(player.x,player.y,mousePos.x,mousePos.y);
 
   var winHeight = $(window).innerHeight();
