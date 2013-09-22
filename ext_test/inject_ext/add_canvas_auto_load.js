@@ -325,12 +325,18 @@ function run(){
 function stop(){
   window.clearInterval(drawInterval);
   drawInterval = setInterval(function(middle){
+    var cool;
+    if (player.y>=$(window).innerHeight()/2){
+      cool=player.y-$(window).innerHeight()/4;
+    } else {
+      cool = $(window).innerHeight()/2;
+    }
     ctx.fillStyle="white";
-    ctx.fillRect(0,0,canvas.width,canvas.height);
-    ctx.font="18px arial";
+    ctx.fillRect($(window).innerWidth()/3-100,cool-150,800,400);
+    ctx.font="40px arial";
     ctx.fillStyle="black";
-    ctx.fillText("Game Over!",$(window).innerWidth()/3,player.y-($(window).innerHeight()/4));
-    ctx.fillText("Press ESC to go back to browsing",$(window).innerWidth()/3,player.y-($(window).innerHeight()/4)+30);
+    ctx.fillText("Game Over!",$(window).innerWidth()/3,cool);
+    ctx.fillText("Press ESC to go back to browsing",$(window).innerWidth()/3,cool+30);
     if(keysDown[KEY_ESC]){
   		reallyStop();
   		port.postMessage({quit:"now"});
