@@ -106,6 +106,14 @@ var Player = function(x,y){
   };
 }
 
+var Mine = function(x,y){
+  this.x = x;
+  this.y = y;
+  this.radius = 5;
+  this.color = player.color;
+  this.lineWidth=4;
+}
+
 var bullets=[], newBullets=[];
 var Bullet = function(x,y){
   this.angle=player.crosshair.angle;
@@ -152,8 +160,8 @@ function setup(){
   ctx = canvas.getContext("2d");
 
   createObstacles();
-  //player=createPlayer(1,'red');
-//	players[player.pid]=player;
+  player=createPlayer(1,'red');
+	players[player.pid]=player;
   initListeners();
 }
 
