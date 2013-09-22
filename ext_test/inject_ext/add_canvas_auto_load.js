@@ -566,7 +566,7 @@ function renderBullets(){
   }
 }
 function renderBlood(){
-  for (var i=0;i<newnewBlood.length;i++){
+  for (var i=0;i<newBlood.length;i++){
     ctx.beginPath();
     ctx.arc(newBlood[i].x, newBlood[i].y, newBlood[i].radius, 0, 2*Math.PI, false);
     ctx.lineWidth = 2;
