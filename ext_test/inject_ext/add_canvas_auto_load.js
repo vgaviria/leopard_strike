@@ -1,5 +1,6 @@
 var canvas;
 var ctx;
+var MILLI_DRAW = 16.7;
 var drawInterval;
 var keysDown=[];
 var mousePos={'x':0,'y':0};
@@ -7,6 +8,9 @@ var mousePos={'x':0,'y':0};
 var grid = [];
 var valid = [];
 var CELL_SIZE = 30;
+var MINE_MAX = 5;
+var MINE_RAD_MIN = 3;
+var MINE_RAD_MAX = 12;
 var obstacles=[];
 var updateCounter=0;
 var Obstacle = function(x,y,width,height){
@@ -107,12 +111,36 @@ var Player = function(x,y){
   this.isDead=function(){ return health<=0; }
 }
 
+var playerMines = [];
+var playerMineCount = 0;
 var Mine = function(x,y){
   this.x = x;
   this.y = y;
   this.radius = 5;
   this.color = player.color;
   this.lineWidth=4;
+  //other rendering variables
+  this.pulsateFreq = 5;
+  this.pulsateCount = 0;
+  this.pulsateReverse = false;
+}
+
+function incrementPulsate(mine){
+  mine.pulsateCount++;
+  if(!mine.pulsateReverse && mine.pulsateCount >= mine.pulsateFreq){
+    mine.pulsateCount = 0;
+    mine.radius++;
+    if(mine.radius >= MINE_RAD_MAX){
+      mine.pulsateReverse = true;
+    }
+  }
+  else if(mine.pulsateReverse && mine.pulsateCount >= mine.pulsateFreq){
+    mine.pulsateCount = 0;
+    mine.radius--;
+    if(mine.radius <= MINE_RAD_MIN){
+      mine.pulsateReverse = false;
+    }
+  }
 }
 
 var bullets=[], newBullets=[];
@@ -243,6 +271,13 @@ function initListeners(){
       e.preventDefault();
     }
 
+    if(e.keyCode === 69){
+      if(player && playerMineCount != MINE_MAX){
+        playerMines.push(new Mine(player.x,player.y));
+        playerMineCount++;
+      }
+    }
+
   },false);
   document.addEventListener("keyup", function(e) {
     delete keysDown[e.keyCode];
@@ -300,12 +335,17 @@ var KEY_ESC = 27;
 function update(){
 
   if(player && 'mouse' in keysDown){
-	var b = new Bullet(mousePos.x,mousePos.y);
-    bullets.push(b);
-	var xoff = updateCounter*b.speed*Math.cos(b.angle),
-		yoff = updateCounter*b.speed*Math.sin(b.angle);
-	newBullets.push({x:b.x+xoff,y:b.y+yoff,v:b.speed,deg:b.angle});
+  	var b = new Bullet(mousePos.x,mousePos.y);
+      bullets.push(b);
+  	var xoff = updateCounter*b.speed*Math.cos(b.angle),
+  		yoff = updateCounter*b.speed*Math.sin(b.angle);
+  	newBullets.push({x:b.x+xoff,y:b.y+yoff,v:b.speed,deg:b.angle});
   }
+
+  for(var i =0;i<playerMines.length;i++){
+    incrementPulsate(playerMines[i]);
+  }
+
   var bulletGrid = {};
   var deadBullets = [];
   for(var i=bullets.length-1;i>=0;i--){
@@ -424,6 +464,7 @@ function render(){
   renderObstacles();
   renderPlayers();
   renderBullets();
+  renderMines();
   ctx.fillStyle='black';
   /* draw grid */
   if (drawGrid) {
@@ -478,6 +519,17 @@ function renderPlayers(){
       ctx.fillStyle="red";
       ctx.fillRect(entity.x-entity.radius,entity.y-(entity.radius+5),entity.radius*2*(entity.health/entity.maxHealth),3);
 	}
+}
+
+function renderMines(){
+  for(var i = 0; i < playerMines.length; i++){
+    ctx.beginPath();
+    ctx.arc(playerMines[i].x, playerMines[i].y, playerMines[i].radius, 0, 2*Math.PI, false);
+    ctx.lineWidth = playerMines[i].lineWidth;
+    ctx.strokeStyle = playerMines[i].color;
+    ctx.stroke();
+    ctx.closePath();
+  }
 }
 
 function renderBullets(){
