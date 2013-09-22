@@ -3,6 +3,7 @@ function respondClientList(socket,msg){
 }
 function respondCreatePlayer(socket,msg){
 	//construct player on the canvas.
+	currentport.postMessage(msg);
 }
 function respondUpdatePlayer(socket,msg){
 	//update player on the canvas
@@ -39,7 +40,9 @@ var socket = io.connect("http://localhost:8456/");//'http://infinitegde-nodejs.j
 					respondClientList(socket,msg);
 				break;
 				case PacketTypes.CREATEPLAYER:
-					respondCreatePlayer(socket,msg);
+				case PacketTypes.SETPLAYERID:
+				case PacketTypes.UPDATEPLAYER:
+					currentport.postMessage(msg);
 				break;
 			}
 		}else if(msg){

@@ -1,9 +1,23 @@
 var currentView;
 
 currentTabURL = "";
+currentport=null;
 var currentView = undefined;
 isGamePlaying = false;
 
+chrome.runtime.onConnect.addListener(function(port) {
+	currentport=port;
+  port.onMessage.addListener(function(msg) {
+		if(msg.pid && msg.x && msg.y && msg.deg){
+			msg.type = PacketTypes.UPDATEPLAYER;
+			socket.emit('message',msg);
+		}
+  });
+  port.onDisconnect.addListener(function(){
+	currentport=undefined;
+  });
+});
+  
 // Called when the user clicks on the browser action.
 chrome.browserAction.onClicked.addListener(function(tab) {
 	  var src = chrome.extension.getURL('add_canvas_auto_load.js');
@@ -14,14 +28,10 @@ chrome.browserAction.onClicked.addListener(function(tab) {
 	  // });
 
 	  var views = chrome.extension.getViews();
-
-	  if(currentView != views[0]){
-	  	chrome.tabs.executeScript({
-	    	code: "var s2 = document.createElement('script'); s2.src ='" + jq + "'; s2.onload = function() { var s = document.createElement('script'); s.src ='" + src + "'; (document.head||document.documentElement).appendChild(s); }; (document.head||document.documentElement).appendChild(s2); "
-	  	});
+	if(currentport){
 		sendJoinGame(currentTabURL);
-	  }
-
+		currentport.postMessage({init:1});
+	}
 	  
 });
 

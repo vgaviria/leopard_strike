@@ -1,6 +1,5 @@
 require('./PacketDesc.js');
-require('./gamelogic.js');
-var io = require('socket.io').listen(8456);
+var io = require('socket.io').listen(8456,{log:false});
 var server={
 	users:{},
 	rooms:{},
@@ -49,7 +48,7 @@ function constructNewPlayerPacket(id,x,y,color)
 }
 function constructNewPlayerIDPacket(id)
 {
-	var pkt = new Packet(PacketTypes.CREATEPLAYER);
+	var pkt = new Packet(PacketTypes.SETPLAYERID);
 	pkt.pid=id;
 	return pkt;
 }
@@ -79,7 +78,7 @@ function respondJoinGame(usr,socket,msg){
 		usr.y=100;
 		usr.deg=0;
 		usr.color= randomColor();
-		socket.volatile.broadcast.to(usr.room).emit('message',constructNewPlayerPacket(usr.pid,500,500,randomColor()));
+		io.sockets.in(usr.room).emit('message',constructNewPlayerPacket(usr.pid,500,500,randomColor()));
 		socket.volatile.emit('message',constructNewPlayerIDPacket(usr.pid));
 	}
 }
@@ -93,12 +92,12 @@ function respondFireBullet(usr,socket,msg){
 }
 
 function respondUpdatePlayer(usr,socket,msg){
+	console.log(msg);
 	if(usr.room && usr.pid && msg.x && msg.y && msg.deg)
 	{
 		usr.x=msg.x;
 		usr.y=msg.y;
 		usr.deg=msg.deg;
-		msg.pid = usr.pid;
 		//Do some collision detection here.
 	}
 }
@@ -142,6 +141,7 @@ function setupRoom(room){
 
 function updateRoom(room){
 	var update = {
+		id:PacketTypes.UPDATEPLAYER,
 		players:{}
 	};
 	for(var pid in room.players){

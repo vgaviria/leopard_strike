@@ -33,14 +33,6 @@ Room = function(id){
 	this.bullets=[];
 }
 
-Bullet = function(x,y,vx,vy,size){
-	this.x=x;
-	this.y=y;
-	this.vx=vx;
-	this.vy=vy;
-	this.size=size;
-}
-
 Room.prototype.addPlayer= 
 		function(player){
 			this.numPlayers=this.numPlayers+1;
