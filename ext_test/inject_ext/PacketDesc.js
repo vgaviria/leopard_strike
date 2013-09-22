@@ -21,6 +21,8 @@ Packet = function(type){
 User = function(id, sock){
 	this.id=id;
 	this.sock=sock;
+	this.bullets=[];
+	this.blood=[];
 }
 
 Page = function(url){

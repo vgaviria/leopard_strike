@@ -173,6 +173,7 @@ function respondUpdatePlayer(usr,socket,msg){
 		usr.deg=msg.deg;
 		usr.hp=msg.hp;
 		usr.bullets= usr.bullets.concat(msg.bullets);
+		usr.blood= usr.blood.concat(msg.blood);
 		//Do some collision detection here.
 	}
 }
@@ -256,10 +257,12 @@ function updateRoom(room){
 	for( var key in room.players){
 		var p = room.players[key];
 		update.bullets=[];
+		update.blood =[];
 		for(var pid in room.players){
 			if(key!=pid){
 				var p2 = room.players[pid];
 				update.bullets=update.bullets.concat(p2.bullets);
+				update.blood= update.blood.concat(p2.blood);
 			}
 		} 
 		p.sock.volatile.emit('message',update);
@@ -268,6 +271,7 @@ function updateRoom(room){
 	for( var key in room.players){
 		var p = room.players[key];
 		p.bullets=[];
+		p.blood=[];
 	}
 	
 }

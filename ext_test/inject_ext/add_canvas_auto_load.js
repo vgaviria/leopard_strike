@@ -77,15 +77,9 @@ port.onMessage.addListener(function(msg) {
 				nb.angle=b.deg;
 				bullets.push(nb);
 			}
-      for(var i=0;i<msg.blood.length;i++)
-      {
-        var b = msg.blood[i];
-        var nb = new Blood(0,0);
-        nb.x=b.x;
-        nb.y=b.y;
-        nb.radius=b.radius;
-        blood.push(nb);
-      }
+			if(msg.blood)
+				blood=blood.concat(msg.blood);
+      
 		}
 	}
   if(msg && msg.type==PacketTypes.REQUESTLEVEL){
@@ -314,7 +308,10 @@ function run(){
     render();
   	if(player){
   		if(updateCounter--<0){
-  			port.postMessage({pid:player.pid,x:player.x,y:player.y,deg:player.crosshair.angle*180/Math.PI,hp:player.health,bullets:newBullets});
+  			port.postMessage({pid:player.pid,x:player.x,y:player.y,deg:player.crosshair.angle*180/Math.PI,hp:player.health,
+			bullets:newBullets, blood:newBlood});
+			blood=blood.concat(newBlood);
+			newBlood=[];
   			newBullets=[];
   			updateCounter=8;
   		}
