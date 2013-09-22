@@ -244,16 +244,31 @@ function run(){
   drawInterval=setInterval(function(){
     update();
     render();
-	if(player){
-		if(updateCounter--<0){
-			port.postMessage({pid:player.pid,x:player.x,y:player.y,deg:player.crosshair.angle*180/Math.PI,bullets:newBullets});
-			newBullets=[];
-			updateCounter=8;
-		}
-	}
+  	if(player){
+  		if(updateCounter--<0){
+  			port.postMessage({pid:player.pid,x:player.x,y:player.y,deg:player.crosshair.angle*180/Math.PI,bullets:newBullets});
+  			newBullets=[];
+  			updateCounter=8;
+  		}
+  	}
   },16.7);
 }
 function stop(){
+  window.clearInterval(drawInterval);
+  drawInterval = setInterval(function(middle){
+    ctx.fillStyle="white";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.font="18px arial";
+    ctx.fillStyle="black";
+    ctx.fillText("Game Over!",$(window).innerWidth()/3,player.y-($(window).innerHeight()/4));
+    ctx.fillText("Press ESC to go back to browsing",$(window).innerWidth()/3,player.y-($(window).innerHeight()/4)+30);
+    if(keysDown[KEY_ESC]){
+      reallyStop();
+    }
+  },16.7)
+}
+function reallyStop(){
+  $(document).unbind();
   window.clearInterval(drawInterval);
   $("#canvas").remove();
 }

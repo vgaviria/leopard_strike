@@ -118,6 +118,7 @@ function initListeners(){
   },false);
   document.addEventListener("keydown", function(e) {
     keysDown[e.keyCode] = true;
+    console.log(e.keyCode);
   },false);
   document.addEventListener("keyup", function(e) {
     delete keysDown[e.keyCode];
@@ -133,7 +134,30 @@ function run(){
 //update game logic
 function update(){
   player.crosshair.update(player.x,player.y,mousePos.x,mousePos.y);
+  if(keysDown[38]){
+      stop();
+  }
 }
+function stop(){
+  window.clearInterval(drawInterval);
+  drawInterval = setInterval(function(middle){
+    ctx.fillStyle="white";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.font="18px arial";
+    ctx.fillStyle="black";
+    ctx.fillText("Game Over!",$(window).innerWidth()/3,player.y-($(window).innerHeight()/4));
+    ctx.fillText("Press ESC to go back to browsing",$(window).innerWidth()/3,player.y-($(window).innerHeight()/4)+30);
+    if(keysDown[KEY_ESC]){
+      reallyStop();
+    }
+  },16.7)
+}
+function reallyStop(){
+  $(document).unbind();
+  window.clearInterval(drawInterval);
+  $("#canvas").remove();
+}
+var KEY_ESC=27;
 //rendering functions
 function render(){
   renderBG();
