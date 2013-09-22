@@ -10,6 +10,8 @@ PacketTypes= {
 	FIREBULLET:9,		// params pid, x, y, deg - CLIENT
 	DELETEPLAYER:10,	// params pid -SERVER
 	LEAVEROOM:11,		// params pid -CLIENT
+	REQUESTLEVEL:12,	// params pid -SERVER
+	SERVELEVEL:13,		// params level -CLIENT
 };
 
 Packet = function(type){
@@ -28,6 +30,7 @@ Page = function(url){
 
 Room = function(id){
 	this.id=id;
+	this.size=0;
 	this.numPlayers=0;
 	this.players={};
 	this.bullets=[];

@@ -56,10 +56,10 @@ function constructNewPlayerIDPacket(id)
 function respondJoinGame(usr,socket,msg){
 	if(msg.url){
 		if(usr.room){
-			
 			console.log("player left("+usr.pid+"): "+msg.url);
 			var room = server.rooms[usr.room];
-			if(room.numPlayers<1){
+			room.size--;
+			if(room.size<1){
 				console.log("game closed:"+msg.url);
 				if(room.timer)
 					clearInterval(room.timer);
@@ -72,13 +72,23 @@ function respondJoinGame(usr,socket,msg){
 			server.rooms[newRoom]=new Room(newRoom);
 			console.log("new room created:"+newRoom);
 			setupRoom(server.rooms[newRoom]);
+		}else{
+			for(var key in server.rooms[newRoom].players){
+				var p = server.rooms[newRoom].players[key];
+				if(p.sock.id==usr.sock.id){
+					delete server.rooms[newRoom].players[key];
+					break;
+				}
+			}
 		}
 		server.rooms[newRoom].addPlayer(usr);
+		server.rooms[newRoom].size++;
 		console.log("client joined room("+usr.pid+"):"+newRoom);
 		usr.x=100;
 		usr.y=100;
 		usr.deg=0;
 		usr.color= randomColor();
+		usr.room=newRoom;
 		for( var key in server.rooms[newRoom].players){
 			var p = server.rooms[newRoom].players[key];
 			p.sock.volatile.emit('message',constructNewPlayerPacket(usr.pid,500,500,randomColor()));
@@ -140,7 +150,7 @@ io.sockets.on('connection', function (socket) {
 });
 
 function setupRoom(room){
-	room.timer=setInterval(updateRoom,16,room);
+	room.timer=setInterval(updateRoom,20,room);
 }
 
 function updateRoom(room){
@@ -150,6 +160,8 @@ function updateRoom(room){
 	};
 	for(var pid in room.players){
 		var player = room.players[pid];
+		if(player.sock.disconnected)
+			delete room.players[pid];
 		var tmp = {
 			x:player.x,
 			y:player.y,
