@@ -19,7 +19,7 @@ var Obstacle = function(x,y,width,height){
 var haveISetupYet=false;
 var port = chrome.runtime.connect({name: "leopardstrike"});
 port.onMessage.addListener(function(msg) {
-	if(!haveISetupYet){
+	if(!haveISetupYet && msg.init){
 		setup();
 		run();
 		haveISetupYet=true;
@@ -42,12 +42,13 @@ port.onMessage.addListener(function(msg) {
 				ours.y=p.y;
 				ours.crosshair.angle=p.deg*Math.PI/180;
 			}else{
-				var newPlayer = new Player(ours.x,ours.y);
+				var newPlayer = new Player(p.x,p.y);
 				newPlayer.pid =key;
 				newPlayer.x=p.x;
 				newPlayer.y=p.y;
 				newPlayer.crosshair.angle=p.deg*Math.PI/180;
 				newPlayer.color=p.color;
+				players[key]=newPlayer;
 			}
 		}
 	}
@@ -109,8 +110,8 @@ function setup(){
   ctx = canvas.getContext("2d");
 
   createObstacles();
-  //createPlayer('red');
-	
+  player=createPlayer(1,'red');
+	players[player.pid]=player;
   initListeners();
 }
 //generate obstacles based on document
@@ -163,8 +164,10 @@ function createPlayer(id,color){
   var spawnPoint = valid[Math.floor(Math.random()*valid.length)];
   var playerX = Math.floor(spawnPoint.i*CELL_SIZE)+15;
   var playerY = Math.floor(spawnPoint.j*CELL_SIZE)+15;
-  player = new Player(playerX,playerY);
-  player.color=color;
+  var nplayer = new Player(playerX,playerY);
+  nplayer.pid=id;
+  nplayer.color=color;
+  return nplayer;
 }
 function initListeners(){
   document.addEventListener('mousedown',function(e) {
