@@ -277,11 +277,18 @@ function update(){
     bulX = Math.floor(bullets[i].x/CELL_SIZE);
     bulY = Math.floor(bullets[i].y/CELL_SIZE);
     key=bulX+':'+bulY;
-    if (key in bulletGrid) {
-      bulletGrid[key].push(i);
-    } else {
-      bulletGrid[key]=[];
-      bulletGrid[key].push(i);
+
+    if(Math.sqrt(Math.pow(player.x - bullets[i].x,2) + Math.pow(player.y - bullets[i].y,2)) < (player.radius + bullets[i].radius))
+    {
+      deadBullets.push(i);
+    }
+    else{
+      if (key in bulletGrid) {
+        bulletGrid[key].push(i);
+      } else {
+        bulletGrid[key]=[];
+        bulletGrid[key].push(i);
+      }
     }
   }
   Object.keys(bulletGrid).forEach(function(key) {
@@ -305,22 +312,6 @@ function update(){
           if (bullets[bulletIndex].x < obMaxX && bullets[bulletIndex].x > obMinX
             && bullets[bulletIndex].y < obMaxY && bullets[bulletIndex].y > obMinY)
             deadBullets.push(bulletGrid[key][i]);
-        }
-
-        //check for player collision
-        var playerXCell = Math.floor(player.x/CELL_SIZE);
-        var playerYCell = Math.floor(player.y/CELL_SIZE);
-        //fix
-        if((vals[0] == playerXCell || vals[0] == playerXCell+1) && 
-           (vals[1] == playerYCell || vals[1] == playerYCell+1)){
-          for(var i = 0; i<bulletGrid[key].length; i++){
-            var bullet = bullets[bulletGrid[key][i]];
-
-            if(Math.sqrt(Math.pow(player.x - bullet.x,2) + Math.pow(player.y - bullet.y,2)) < (player.radius + bullet.radius))
-            {
-              deadBullets.push(bulletGrid[key][i]);
-            }
-          }
         }
       }
     }
