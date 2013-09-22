@@ -56,10 +56,10 @@ function constructNewPlayerIDPacket(id)
 function respondJoinGame(usr,socket,msg){
 	if(msg.url){
 		if(usr.room){
-			
 			console.log("player left("+usr.pid+"): "+msg.url);
 			var room = server.rooms[usr.room];
-			if(room.numPlayers<1){
+			room.size--;
+			if(room.size<1){
 				console.log("game closed:"+msg.url);
 				if(room.timer)
 					clearInterval(room.timer);
@@ -72,8 +72,17 @@ function respondJoinGame(usr,socket,msg){
 			server.rooms[newRoom]=new Room(newRoom);
 			console.log("new room created:"+newRoom);
 			setupRoom(server.rooms[newRoom]);
+		}else{
+			for(var key in server.rooms[newRoom].players){
+				var p = server.rooms[newRoom].players[key];
+				if(p.sock.id==usr.sock.id){
+					delete server.rooms[newRoom].players[key];
+					break;
+				}
+			}
 		}
 		server.rooms[newRoom].addPlayer(usr);
+		server.rooms[newRoom].size++;
 		console.log("client joined room("+usr.pid+"):"+newRoom);
 		usr.x=100;
 		usr.y=100;
