@@ -75,7 +75,7 @@ var Player = function(x,y){
   this.radius=8;
   this.color="red";
   this.lineWidth=3;
-  this.speed=3;
+  this.speed=15;
   this.crosshair = {
     x:0,
     y:0,
@@ -283,6 +283,7 @@ function update(){
             if(Math.abs(player.x - bullet.x) < (player.radius + bullet.radius) &&
                Math.abs(player.y - bullet.y) < (player.radius + bullet.radius))
             {
+              // console.log(bullet,"Deleting bullet!!");
               deadBullets.push(bulletGrid[key][i]);
             }
           }
