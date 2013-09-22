@@ -53,6 +53,10 @@ port.onMessage.addListener(function(msg) {
 			}
 		}
 	}
+  if(msg && msg.type==PacketTypes.REQUESTLEVEL){
+    createObstacles();
+    port.postMessage({type:PacketTypes.SERVELEVEL, obstacles: grid});
+  }
 });
 
 var player;
