@@ -261,6 +261,20 @@ function update(){
             && bullets[bulletIndex].y < obMaxY && bullets[bulletIndex].y > obMinY)
             deadBullets.push(bulletGrid[key][i]);
         }
+
+        //check for player collision
+        var playerXCell = Math.floor(player.x/CELL_SIZE);
+        var playerYCell = Math.floor(player.y/CELL_SIZE);
+        if(vals[0] == playerXCell && vals[1] == playerYCell){
+          for(var i = 0; i<bulletGrid[key].length; i++){
+            var bullet = bullets[bulletGrid[key][i]];
+            if(Math.abs(player.x - bullet.x) < (player.radius + bullet.radius) &&
+               Math.abs(player.y - bullet.y) < (player.radius + bullet.radius))
+            {
+              deadBullets.push(bulletGrid[key][i]);
+            }
+          }
+        }
       }
     }
   });
