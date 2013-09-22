@@ -47,6 +47,15 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
 	});
 });
 
+chrome.webNavigation.onDOMContentLoaded.addListener(function(details){
+	if(details.url){
+		currentTabURL=details.url;
+		currentTabId = details.tabId;
+		sendOpenPage(currentTabURL);
+	}
+});
+
+
 chrome.tabs.onUpdated.addListener(function() {
 	currentView = undefined;
 });
