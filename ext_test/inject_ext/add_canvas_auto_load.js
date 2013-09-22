@@ -58,7 +58,7 @@ port.onMessage.addListener(function(msg) {
 				delete players[key];
 		}
 		if(msg.bullets)
-			bullets= concat(bullets,msg.bullets);
+			bullets= bullets.concat(msg.bullets);
 	}
   if(msg && msg.type==PacketTypes.REQUESTLEVEL){
     createObstacles();
@@ -245,7 +245,7 @@ function update(){
   if(player && 'mouse' in keysDown){
 	var b = new Bullet(mousePos.x,mousePos.y);
     bullets.push(b);
-	newBullets.push({b.x,b.y,b.speed,b.angle});
+	newBullets.push({x:b.x,y:b.y,v:b.speed,deg:b.angle});
   }
   var bulletGrid = {};
   var deadBullets = [];
