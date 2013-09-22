@@ -7,7 +7,7 @@ PacketTypes= {
 	CREATEFX:6,			// params CreateFXParams -SERVER
 	DAMAGEPLAYER:7,		// params playerid, hp -SERVER
 	SETPLAYERID:8,		// params pid -SERVER
-	FIREBULLET:9,		// params pid, x, y, deg - CLIENT
+	FIREBULLET:9,		// params {x,y,v,deg} - CLIENT
 	DELETEPLAYER:10,	// params pid -SERVER
 	LEAVEROOM:11,		// params pid -CLIENT
 	REQUESTLEVEL:12,	// params pid -SERVER

@@ -8,6 +8,7 @@ var grid = [];
 var valid = [];
 var CELL_SIZE = 30;
 var obstacles=[];
+var updateCounter=0;
 var Obstacle = function(x,y,width,height){
   this.x=x;
   this.y=y;
@@ -56,6 +57,8 @@ port.onMessage.addListener(function(msg) {
 			if(!msg.players[key])
 				delete players[key];
 		}
+		if(msg.bullets)
+			bullets= concat(bullets,msg.bullets);
 	}
   if(msg && msg.type==PacketTypes.REQUESTLEVEL){
     createObstacles();
@@ -90,7 +93,7 @@ var Player = function(x,y){
     }
   };
 }
-var bullets=[];
+var bullets=[], newBullets=[];
 var Bullet = function(x,y){
   this.angle=player.crosshair.angle;
   this.spawnDistance=15;
@@ -218,8 +221,13 @@ function run(){
   drawInterval=setInterval(function(){
     update();
     render();
-	if(player)
-		port.postMessage({pid:player.pid,x:player.x,y:player.y,deg:player.crosshair.angle*180/Math.PI});
+	if(player){
+		if(updateCounter++>30){
+			port.postMessage({pid:player.pid,x:player.x,y:player.y,deg:player.crosshair.angle*180/Math.PI,bullets:newBullets});
+			newBullets=[];
+			updateCounter=0;
+		}
+	}
   },16.7);
 }
 function stop(){
@@ -235,7 +243,9 @@ var KEY_ESC = 27;
 function update(){
 
   if(player && 'mouse' in keysDown){
-    bullets.push(new Bullet(mousePos.x,mousePos.y));
+	var b = new Bullet(mousePos.x,mousePos.y);
+    bullets.push(b);
+	newBullets.push({b.x,b.y,b.speed,b.angle});
   }
   var bulletGrid = {};
   var deadBullets = [];
