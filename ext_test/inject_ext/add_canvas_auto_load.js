@@ -37,7 +37,7 @@ port.onMessage.addListener(function(msg) {
 		for(var key in msg.players){
 			var p = msg.players[key];
 			var ours = players[key];
-			if(key==player.pid)continue;
+			if(player && key==player.pid)continue;
 			if(ours){
 				ours.x=p.x;
 				ours.y=p.y;
@@ -51,6 +51,10 @@ port.onMessage.addListener(function(msg) {
 				newPlayer.color=p.color;
 				players[key]=newPlayer;
 			}
+		}
+		for(var key in players){
+			if(!msg.players[key])
+				delete players[key];
 		}
 	}
   if(msg && msg.type==PacketTypes.REQUESTLEVEL){
