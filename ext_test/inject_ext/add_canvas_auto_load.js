@@ -88,7 +88,9 @@ var Player = function(x,y){
   this.radius=8;
   this.color="red";
   this.lineWidth=3;
-  this.speed=3;
+  this.speed=15;
+  this.health=50;
+  this.isDead=false;
   this.crosshair = {
     x:0,
     y:0,
@@ -103,6 +105,7 @@ var Player = function(x,y){
     }
   };
 }
+
 var bullets=[], newBullets=[];
 var Bullet = function(x,y){
   this.angle=player.crosshair.angle;
@@ -153,6 +156,7 @@ function setup(){
 //	players[player.pid]=player;
   initListeners();
 }
+
 //generate obstacles based on document
 function createObstacles(){
   //select 50% of deepest elements
@@ -197,6 +201,7 @@ function createObstacles(){
     }
   }
 }
+
 //generate player and place him somewhere unobstructed
 function createPlayer(id,color){
   //pick a random true grid and spawn the player there
@@ -208,6 +213,7 @@ function createPlayer(id,color){
   nplayer.color=color;
   return nplayer;
 }
+
 function initListeners(){
   document.addEventListener('mousedown',function(e) {
     e.preventDefault();
@@ -239,6 +245,7 @@ function initListeners(){
   });
   
 }
+
 //start interval
 function run(){
   drawInterval=setInterval(function(){
@@ -253,6 +260,7 @@ function run(){
   	}
   },16.7);
 }
+
 function stop(){
   window.clearInterval(drawInterval);
   drawInterval = setInterval(function(middle){
@@ -272,12 +280,14 @@ function reallyStop(){
   window.clearInterval(drawInterval);
   $("#canvas").remove();
 }
+
 //update game logic
 var KEY_UP = 87;
 var KEY_DOWN = 83;
 var KEY_LEFT = 65;
 var KEY_RIGHT = 68;
 var KEY_ESC = 27;
+
 function update(){
 
   if(player && 'mouse' in keysDown){
@@ -294,11 +304,19 @@ function update(){
     bulX = Math.floor(bullets[i].x/CELL_SIZE);
     bulY = Math.floor(bullets[i].y/CELL_SIZE);
     key=bulX+':'+bulY;
-    if (key in bulletGrid) {
-      bulletGrid[key].push(i);
-    } else {
-      bulletGrid[key]=[];
-      bulletGrid[key].push(i);
+
+    if(Math.sqrt(Math.pow(player.x - bullets[i].x,2) + Math.pow(player.y - bullets[i].y,2)) < (player.radius + bullets[i].radius))
+    {
+      player.health -= 1;
+      deadBullets.push(i);
+    }
+    else{
+      if (key in bulletGrid) {
+        bulletGrid[key].push(i);
+      } else {
+        bulletGrid[key]=[];
+        bulletGrid[key].push(i);
+      }
     }
   }
   Object.keys(bulletGrid).forEach(function(key) {
@@ -410,12 +428,14 @@ function render(){
     }
   }
 }
+
 function renderBG(){
   canvas.width=canvas.width;
   canvas.height=canvas.height;
   ctx.fillStyle="rgba(255,255,255,0.5)";
   ctx.fillRect(0,0,canvas.width,canvas.height);
 }
+
 function renderObstacles(){
   for (var i=0;i<obstacles.length;i++){
     ctx.strokeStyle=obstacles[i].color;
@@ -447,6 +467,7 @@ function renderPlayers(){
 		  ctx.closePath();
 	}
 }
+
 function renderBullets(){
   for (var i=0;i<bullets.length;i++){
     ctx.beginPath();
@@ -457,6 +478,7 @@ function renderBullets(){
     ctx.closePath();
   }
 }
+
 //update mouse position
 function getMouseCoords(event) {
   var x,y;
