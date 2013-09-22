@@ -11,8 +11,11 @@ var CELL_SIZE = 30;
 var MINE_MAX = 5;
 var MINE_RAD_MIN = 3;
 var MINE_RAD_MAX = 12;
+var BULLETS_TYPE = 0;
+var MINES_TYPE = 1;
 var obstacles=[];
 var updateCounter=0;
+//var randOwnerId = Math.random() * 1000000;
 var Obstacle = function(x,y,width,height){
   this.x=x;
   this.y=y;
@@ -119,7 +122,7 @@ var Player = function(x,y){
   this.isDead=function(){ return this.health<=0; }
 }
 
-var playerMines = [];
+//var playerMines = [];
 var playerMineCount = 0;
 var Mine = function(x,y){
   this.x = x;
@@ -131,23 +134,31 @@ var Mine = function(x,y){
   this.pulsateFreq = 5;
   this.pulsateCount = 0;
   this.pulsateReverse = false;
-}
-
-function incrementPulsate(mine){
-  mine.pulsateCount++;
-  if(!mine.pulsateReverse && mine.pulsateCount >= mine.pulsateFreq){
-    mine.pulsateCount = 0;
-    mine.radius++;
-    if(mine.radius >= MINE_RAD_MAX){
-      mine.pulsateReverse = true;
+  this.type = MINES_TYPE;
+  this.ownerId = player.pid;
+  //This is really the increment pulsate function!!
+  this.move=function(){
+    this.pulsateCount++;
+    if(!this.pulsateReverse && this.pulsateCount >= this.pulsateFreq){
+      this.pulsateCount = 0;
+      this.radius++;
+      if(this.radius >= MINE_RAD_MAX){
+        this.pulsateReverse = true;
+      }
+    }
+    else if(this.pulsateReverse && this.pulsateCount >= this.pulsateFreq){
+      this.pulsateCount = 0;
+      this.radius--;
+      if(this.radius <= MINE_RAD_MIN){
+        this.pulsateReverse = false;
+      }
     }
   }
-  else if(mine.pulsateReverse && mine.pulsateCount >= mine.pulsateFreq){
-    mine.pulsateCount = 0;
-    mine.radius--;
-    if(mine.radius <= MINE_RAD_MIN){
-      mine.pulsateReverse = false;
-    }
+  this.isDead=function(){
+    if (this.x+this.radius>canvas.width) return true;
+    if (this.x-this.radius<0) return true;
+    if (this.y+this.radius>canvas.height) return true;
+    if (this.y-this.radius<0) return true;
   }
 }
 
@@ -161,6 +172,8 @@ var Bullet = function(x,y){
   this.lineWidth=.5;
   this.color=player.color;
   this.speed=10;
+  this.type = BULLETS_TYPE;
+  this.ownerId = null;
   this.move=function(){
     this.x+=this.speed*Math.cos(this.angle);
     this.y+=this.speed*Math.sin(this.angle);
@@ -284,7 +297,7 @@ function initListeners(){
 
     if(e.keyCode === 69){
       if(player && playerMineCount != MINE_MAX){
-        playerMines.push(new Mine(player.x,player.y));
+        bullets.push(new Mine(player.x,player.y));
         playerMineCount++;
       }
     }
@@ -363,10 +376,6 @@ function update(){
   	newBullets.push({x:b.x+xoff,y:b.y+yoff,v:b.speed,deg:b.angle});
   }
 
-  for(var i =0;i<playerMines.length;i++){
-    incrementPulsate(playerMines[i]);
-  }
-
   var bulletGrid = {};
   var deadBullets = [];
   for(var i=bullets.length-1;i>=0;i--){
@@ -377,9 +386,18 @@ function update(){
 
     if(Math.sqrt(Math.pow(player.x - bullets[i].x,2) + Math.pow(player.y - bullets[i].y,2)) < (player.radius + bullets[i].radius))
     {
-      player.health -= 1;
-      deadBullets.push(i);
-      newBlood.push(new Blood(player.x,player.y));
+      if(bullets[i].type && bullets[i].type != MINES_TYPE){
+        player.health -= 1;
+        deadBullets.push(i);
+        newBlood.push(new Blood(player.x,player.y));
+      }
+      else if(bullets[i].type && bullets[i].type === MINES_TYPE && 
+              bullets[i].owner && bullets[i].ownerId === player.pid)
+      {
+        player.health -= 8;
+        deadBullets.push(i);
+        newBlood.push(new Blood(player.x,player.y));
+      }
     }
     else{
       if (key in bulletGrid) {
@@ -490,7 +508,6 @@ function render(){
   renderObstacles();
   renderPlayers();
   renderBullets();
-  renderMines();
   ctx.fillStyle='black';
   /* draw grid */
   if (drawGrid) {
@@ -545,17 +562,6 @@ function renderPlayers(){
       ctx.fillStyle="red";
       ctx.fillRect(entity.x-entity.radius,entity.y-(entity.radius+5),entity.radius*2*(entity.health/entity.maxHealth),3);
 	}
-}
-
-function renderMines(){
-  for(var i = 0; i < playerMines.length; i++){
-    ctx.beginPath();
-    ctx.arc(playerMines[i].x, playerMines[i].y, playerMines[i].radius, 0, 2*Math.PI, false);
-    ctx.lineWidth = playerMines[i].lineWidth;
-    ctx.strokeStyle = playerMines[i].color;
-    ctx.stroke();
-    ctx.closePath();
-  }
 }
 
 function renderBullets(){
