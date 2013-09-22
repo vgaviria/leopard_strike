@@ -89,7 +89,7 @@ port.onMessage.addListener(function(msg) {
 		}
 	}
   if(msg && msg.type==PacketTypes.REQUESTLEVEL){
-    createObstacles();
+    //createObstacles();
     port.postMessage({type:PacketTypes.SERVELEVEL, obstacles: grid, noObstacles: valid});
   }
   if(msg && msg.type==PacketTypes.SERVELEVEL){
@@ -208,7 +208,7 @@ function setup(){
   $("#canvas").css({'position':'absolute','top':0,'left':0,'z-index':99999999,'tabindex':1});
   canvas = document.getElementById("canvas");
   ctx = canvas.getContext("2d");
-  //createObstacles();
+  createObstacles();
   //player=createPlayer(1,'red');
 //	players[player.pid]=player;
   initListeners();
