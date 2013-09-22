@@ -313,7 +313,7 @@ function run(){
 			blood=blood.concat(newBlood);
 			newBlood=[];
   			newBullets=[];
-  			updateCounter=8;
+  			updateCounter=6;
   		}
   	}
   },16.7);
