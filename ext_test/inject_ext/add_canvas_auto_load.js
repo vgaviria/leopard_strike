@@ -25,7 +25,7 @@ var Player = function(x,y){
   this.radius=8;
   this.color="red";
   this.lineWidth=3;
-  this.speed=10;
+  this.speed=3;
   this.crosshair = {
     x:0,
     y:0,
@@ -201,6 +201,38 @@ function update(){
       player.x += player.speed;
     }
   }
+
+  //player collision with static objects
+  collided=[];
+  for (i=0;i<obstacles.length;i++) {
+    if (  player.x+player.radius>obstacles[i].x &&
+          player.x-player.radius<obstacles[i].x+obstacles[i].width &&
+          player.y+player.radius>obstacles[i].y &&
+          player.y-player.radius<obstacles[i].y+obstacles[i].height)
+    {
+      collided.push(obstacles[i]);
+    }
+  }
+  for (i=0;i<collided.length;i++){
+    if ((KEY_RIGHT in keysDown) && player.x<collided[i].x) {
+      player.x=collided[i].x-player.radius;
+    }
+    //colliding from right
+    if ((KEY_LEFT in keysDown) && player.x>collided[i].x+collided[i].width) {
+      player.x=collided[i].x+collided[i].width+player.radius;
+    }
+    //colliding from below
+    if ((KEY_UP in keysDown) && player.y>collided[i].y) {
+      player.y=collided[i].y+collided[i].height+player.radius;
+    }
+    //colliding from above
+    if ((KEY_DOWN in keysDown) && player.y<collided[i].y+collided[i].height) {
+      player.y=collided[i].y-player.radius;
+    }
+  }
+
+
+
   player.crosshair.update(player.x,player.y,mousePos.x,mousePos.y);
 
   var winHeight = $(window).innerHeight();
@@ -225,7 +257,7 @@ function update(){
   }
   Object.keys(bulletGrid).forEach(function(key) {
     var vals = key.split(":");
-    if (vals[0]<=0 || vals[1] <=0 || vals[0]>=grid.length || vals[1]>=grid[0].length) {
+    if (vals[0]<0 || vals[1] <0 || vals[0]>=grid.length || vals[1]>=grid[0].length) {
       delete bulletGrid[key];
     }
     else if (grid[vals[0]][vals[1]].length == 0) {
