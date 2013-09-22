@@ -60,6 +60,14 @@ port.onMessage.addListener(function(msg) {
 		if(msg.bullets)
 			bullets= concat(bullets,msg.bullets);
 	}
+  if(msg && msg.type==PacketTypes.REQUESTLEVEL){
+    createObstacles();
+    port.postMessage({type:PacketTypes.SERVELEVEL, obstacles: grid, noObstacles: valid});
+  }
+  if(msg && msg.type==PacketTypes.SERVELEVEL){
+    grid = msg.obstacles;
+    valid = msg.noObstacles;
+  }
 });
 
 var player;
@@ -160,15 +168,15 @@ function createObstacles(){
       }
     }
   }
-}
-//generate player and place him somewhere unobstructed
-function createPlayer(id,color){
-  //pick a random true grid and spawn the player there
   for (var i=0;i<grid.length;i++){
     for (var j=0;j<grid[i].length;j++){
       if(grid[i][j].length <= 0) { valid.push({'i':i,'j':j}); }
     }
   }
+}
+//generate player and place him somewhere unobstructed
+function createPlayer(id,color){
+  //pick a random true grid and spawn the player there
   var spawnPoint = valid[Math.floor(Math.random()*valid.length)];
   var playerX = Math.floor(spawnPoint.i*CELL_SIZE)+15;
   var playerY = Math.floor(spawnPoint.j*CELL_SIZE)+15;
