@@ -25,6 +25,9 @@ port.onMessage.addListener(function(msg) {
 		run();
 		haveISetupYet=true;
 	}
+	if(haveISetupYet && msg.quit){
+		reallyStop();
+	}
 	if(msg && msg.type==PacketTypes.CREATEPLAYER){
 		players[msg.pid] = new Player(msg.x,msg.y);
 		players[msg.pid].pid=msg.pid;
@@ -153,8 +156,7 @@ function setup(){
   $("#canvas").css({'position':'absolute','top':0,'left':0,'z-index':99999999,'tabindex':1});
   canvas = document.getElementById("canvas");
   ctx = canvas.getContext("2d");
-
-  createObstacles();
+  //createObstacles();
   //player=createPlayer(1,'red');
 //	players[player.pid]=player;
   initListeners();
@@ -231,7 +233,8 @@ function initListeners(){
   document.addEventListener("keydown", function(e) {
     keysDown[e.keyCode] = true;
     if (e.keyCode === KEY_ESC) {
-      stop();
+		stop();
+		
     }
     if(e.keyCode === 40 || e.keyCode === 38){
       e.preventDefault();
@@ -276,7 +279,7 @@ function stop(){
     if(keysDown[KEY_ESC]){
       reallyStop();
     }
-  },16.7)
+  },16.7);
 }
 function reallyStop(){
   $(document).unbind();

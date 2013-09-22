@@ -1,4 +1,5 @@
 require('./PacketDesc.js');
+var CELL_SIZE = 30;
 var io = require('socket.io').listen(8456,{log:false});
 var server={
 	users:{},
@@ -7,6 +8,12 @@ var server={
 };
 
 
+function updatePageSocks(page){
+	for(var sckid in page.socks){
+		var sck = page.socks[sckid];
+		sendClientList(sck,page);
+	}
+}
 
 function respondOpenPage(usr,socket,msg){
 	console.log("packet recieved by "+server.users[socket.id]+":"+msg);
@@ -16,18 +23,25 @@ function respondOpenPage(usr,socket,msg){
 			usr.openpage.num--;
 			if(usr.openpage.num<=0)
 				delete server.pages[usr.openpage.url];
+			else
+				updatePageSocks(usr.openpage);
 		}
 		if(!server.pages[url]){
 			server.pages[url]= new Page(url);
 			console.log('create new page:'+url);
+			server.pages[url].socks={};
 		}
+		server.pages[url].socks[socket.id]=socket;
 		usr.openpage=server.pages[url];
 		server.pages[url].num++;
 		console.log('usr joined page:'+url+" total:"+server.pages[url].num);
-		sendClientList(socket,server.pages[url]);
+		updatePageSocks(server.pages[url]);
 	}
 }
-
+function requestLevelLayout(usr,socket){
+	var msg = new Packet(PacketTypes.REQUESTLEVEL);
+	socket.volatile.emit('message',msg);
+}
 function sendClientList(socket,page){
 	var msg = new Packet(PacketTypes.CLIENTLIST);
 	msg.clients = page.num;
@@ -54,24 +68,29 @@ function constructNewPlayerIDPacket(id)
 	return pkt;
 }
 function respondJoinGame(usr,socket,msg){
-	if(msg.url){
-		if(usr.room){
-			console.log("player left("+usr.pid+"): "+msg.url);
-			var room = server.rooms[usr.room];
-			room.size--;
-			if(room.size<1){
-				console.log("game closed:"+msg.url);
-				if(room.timer)
-					clearInterval(room.timer);
-				delete server.rooms[usr.room];
-			}
+	if(msg.url && usr.room==msg.url)
+		return;
+	if(usr.room){
+		console.log("player left("+usr.pid+"): "+usr.room);
+		var room = server.rooms[usr.room];
+		room.size--;
+		if(room.size<1){
+			console.log("game closed:"+usr.room);
+			if(room.timer)
+				clearInterval(room.timer);
+			delete server.rooms[usr.room];
 		}
+		usr.room=undefined;
+	}
+	if(msg.url){
+		var flagNewRoom=false;
 		var newRoom=msg.url;
 		// currently rooms are assigned as msg.url+msg.checksum
 		if(!server.rooms[newRoom]){
 			server.rooms[newRoom]=new Room(newRoom);
 			console.log("new room created:"+newRoom);
 			setupRoom(server.rooms[newRoom]);
+			flagNewRoom=true;
 		}else{
 			for(var key in server.rooms[newRoom].players){
 				var p = server.rooms[newRoom].players[key];
@@ -90,14 +109,45 @@ function respondJoinGame(usr,socket,msg){
 		usr.hp=50;
 		usr.color= randomColor();
 		usr.room=newRoom;
-		for( var key in server.rooms[newRoom].players){
-			var p = server.rooms[newRoom].players[key];
-			p.sock.volatile.emit('message',constructNewPlayerPacket(usr.pid,500,500,usr.color));
+		if(flagNewRoom)
+			requestLevelLayout(usr,socket);
+		else{
+			for( var key in server.rooms[newRoom].players){
+				var p = server.rooms[newRoom].players[key];
+				p.sock.volatile.emit('message',constructNewPlayerPacket(usr.pid,usr.x,usr.y,usr.color));
+			}
+			if(server.rooms[newRoom].obstacles)
+				socket.volatile.emit('message',constructNewPlayerIDPacket(usr.pid));
 		}
-		socket.volatile.emit('message',constructNewPlayerIDPacket(usr.pid));
 	}
 }
 
+function respondServeLevel(usr,socket,msg){
+	if(usr.room && msg.obstacles && msg.noObstacles){
+		var room = server.rooms[usr.room];
+		if(!room.noObstacles || ! room.obstacles){
+			room.noObstacles=msg.noObstacles;
+			room.obstacles=msg.obstacles;
+			var msg = new Packet(PacketTypes.SERVELEVEL);
+			msg.noObstacles=room.noObstacles;
+			msg.obstacles=room.obstacles;
+			for( var pid in room.players){
+				var p = room.players[pid];
+				
+				var spawnPoint = room.noObstacles[Math.floor(Math.random()*room.noObstacles.length)];
+				p.x = Math.floor(spawnPoint.i*CELL_SIZE)+15;
+				p.y = Math.floor(spawnPoint.j*CELL_SIZE)+15;
+				p.sock.volatile.emit(msg);
+				for( var key in room.players){
+					var p = room.players[key];
+					p.sock.volatile.emit('message',constructNewPlayerPacket(p.pid,p.x,p.y,p.color));
+				}
+				p.sock.volatile.emit('message',constructNewPlayerIDPacket(p.pid));
+			}
+		}
+		
+	}
+}
 function respondFireBullet(usr,socket,msg){
 	if(usr.room && usr.pid && msg.x && msg.y && msg.deg)
 	{
@@ -140,6 +190,9 @@ io.sockets.on('connection', function (socket) {
 				case PacketTypes.FIREBULLET:
 					respondFireBullet(usr,socket,msg);
 					break;
+				case PacketTypes.SERVELEVEL:
+					respondServeLevel(usr,socket,msg);
+					break;
 			}
 		}else if(msg)
 			console.log(msg);
@@ -147,6 +200,24 @@ io.sockets.on('connection', function (socket) {
 			console.log("unknown message received");
 	});
 	socket.on('disconnect', function () {
+		var usr = server.users[socket.id];
+		if(usr.room){
+			var room = server.rooms[usr.room];
+			room.size--;
+			if(room.size<1){
+				if(room.timer)
+					clearInterval(room.timer);
+				console.log("closing room: "+usr.room);
+				delete server.rooms[usr.room];
+			}
+		}
+		if(usr.openpage){
+			usr.openpage.num--;
+			if(usr.openpage.num<=0)
+				delete server.pages[usr.openpage.url];
+			else
+				updatePageSocks(usr.openpage);
+		}
 		console.log('user('+server.users[socket.id]+') disconnected');
 		delete server.users[socket.id];
 	});
@@ -163,8 +234,6 @@ function updateRoom(room){
 	};
 	for(var pid in room.players){
 		var player = room.players[pid];
-		if(player.sock.disconnected)
-			delete room.players[pid];
 		var tmp = {
 			x:player.x,
 			y:player.y,

@@ -1,6 +1,7 @@
 var currentView;
 
 currentTabURL = "";
+playingTabId=-1;
 currentTabId = null;
 currentport=null;
 var currentView = undefined;
@@ -9,13 +10,17 @@ isGamePlaying = false;
 chrome.runtime.onConnect.addListener(function(port) {
 	currentport=port;
   port.onMessage.addListener(function(msg) {
-		if(msg.pid && msg.x && msg.y && msg.deg){
+		
+		if(msg.pid && msg.x && msg.y && msg.deg && isConnected){
 			msg.type = PacketTypes.UPDATEPLAYER;
+			socket.emit('message',msg);
+		}
+		else{
 			socket.emit('message',msg);
 		}
   });
   port.onDisconnect.addListener(function(){
-	currentport=undefined;
+		currentport=undefined;
   });
 });
   
@@ -23,14 +28,16 @@ chrome.runtime.onConnect.addListener(function(port) {
 chrome.browserAction.onClicked.addListener(function(tab) {
 	  var src = chrome.extension.getURL('add_canvas_auto_load.js');
 	  var jq = chrome.extension.getURL('jquery-1.10.2.js');
-
+	if(!isConnected)
+		return;
 	  // chrome.tabs.executeScript({
 	  //   	code: "var s2 = document.createElement('script'); s2.src ='" + jq + "'; s2.onload = function() { var s = document.createElement('script'); s.src ='" + src + "'; (document.head||document.documentElement).appendChild(s); }; (document.head||document.documentElement).appendChild(s2);"
 	  // });
 
-	  var views = chrome.extension.getViews();
-	if(currentport){
+	var views = chrome.extension.getViews();
+	if(currentport && currentTabURL){
 		sendJoinGame(currentTabURL);
+		playingTabId=currentTabId;
 		currentport.postMessage({init:1});
 	}
 	  
@@ -39,7 +46,7 @@ chrome.browserAction.onClicked.addListener(function(tab) {
 //Called when the active tab changes.
 chrome.tabs.onActivated.addListener(function(activeInfo) {
 	chrome.tabs.get(activeInfo.tabId, function(tab) {
-		if(tab.url){
+		if(tab.url&& isConnected){
 			currentTabURL = tab.url;
 			currentTabId = tab.id;
 			sendOpenPage(currentTabURL);
@@ -47,12 +54,14 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
 	});
 });
 
-chrome.webNavigation.onDOMContentLoaded.addListener(function(details){
-	if(details.url){
-		currentTabURL=details.url;
-		currentTabId = details.tabId;
-		sendOpenPage(currentTabURL);
-	}
+chrome.tabs.onUpdated.addListener(function(tabid, changeinfo, tabuh) {
+	chrome.tabs.get(tabid, function(tab) {
+		if(tab.url && isConnected){
+			currentTabURL = tab.url;
+			currentTabId = tab.id;
+			sendOpenPage(currentTabURL);
+		}
+	});
 });
 
 
@@ -63,6 +72,9 @@ chrome.tabs.onUpdated.addListener(function() {
 //Called when the tab is removed
 chrome.tabs.onRemoved.addListener(function(tabId,removeInfo){
 	chrome.tabs.get(tabId, function(tab) {
+		if(tabId==playingTabId){
+			sendJoinGame("");
+		}
 		currentView = undefined;
 	});
 });

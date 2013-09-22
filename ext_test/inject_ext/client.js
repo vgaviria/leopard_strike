@@ -21,6 +21,7 @@ function respondSetPlayerId(socket,msg){
 function respondObtainLevel(msg){
 	//msg.obstacles msg.noObstacles are the 2 important things
 	//used in player spawn point stuff + player needs
+	currentport.postMessage(msg);
 }
 function respondServeLevel(socket,msg){
 	//serve a level back to a requesting player
@@ -39,9 +40,10 @@ function sendJoinGame(url){
 }
 
 
-
+isConnected=false;
 var socket = io.connect('http://25.17.237.229:8456/');//"http://25.17.237.229:8456/");//
   socket.on('connect', function () {
+	isConnected=true;
     socket.on('message', function (msg) {
 		if(msg && msg.type){
 			switch(msg.type){
@@ -49,15 +51,16 @@ var socket = io.connect('http://25.17.237.229:8456/');//"http://25.17.237.229:84
 					respondClientList(socket,msg);
 				break;
 				case PacketTypes.REQUESTLEVEL:
-					respondServeLevel(msg);
+					respondObtainLevel(msg);
 				break;
 				case PacketTypes.SERVELEVEL:
-					respondObtainLevel(msg);
+					respondServeLevel(msg);
 				break;
 				case PacketTypes.CREATEPLAYER:
 				case PacketTypes.SETPLAYERID:
 				case PacketTypes.UPDATEPLAYER:
-					currentport.postMessage(msg);
+					if(currentport)
+						currentport.postMessage(msg);
 				break;
 			}
 		}else if(msg){
@@ -67,4 +70,10 @@ var socket = io.connect('http://25.17.237.229:8456/');//"http://25.17.237.229:84
 		else
 			console.log("unknown message received");
     });
+	socket.on('disconnect',function(){
+		isConnected=false;
+		if(currentport)
+			currentport.postMessage({quit:"1"});
+		chrome.browserAction.setBadgeText({text:""});
+	});
   });
