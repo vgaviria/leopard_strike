@@ -7,7 +7,6 @@ var mousePos={'x':0,'y':0};
 var grid = [];
 var valid = [];
 var CELL_SIZE = 30;
-
 var obstacles=[];
 var Obstacle = function(x,y,width,height){
   this.x=x;
@@ -17,8 +16,45 @@ var Obstacle = function(x,y,width,height){
   this.color="black";
   this.lineWidth=3;
 }
+var haveISetupYet=false;
+var port = chrome.runtime.connect({name: "leopardstrike"});
+port.onMessage.addListener(function(msg) {
+	if(!haveISetupYet){
+		setup();
+		run();
+		haveISetupYet=true;
+	}
+	if(msg && msg.type==PacketTypes.CREATEPLAYER){
+		players[msg.pid] = new Player(msg.x,msg.y);
+		players[msg.pid].pid=msg.pid;
+		players[msg.pid].color=msg.rgb;
+		players[msg.pid].crosshair.color=msg.rgb;
+	}
+	if(msg && msg.type==PacketTypes.SETPLAYERID){
+		player = players[msg.pid];
+	}
+	if(msg && msg.type==PacketTypes.UPDATEPLAYER){
+		for(var key in msg.players){
+			var p = msg.players[key];
+			var ours = players[key];
+			if(ours){
+				ours.x=p.x;
+				ours.y=p.y;
+				ours.crosshair.angle=p.deg*Math.PI/180;
+			}else{
+				var newPlayer = new Player(ours.x,ours.y);
+				newPlayer.pid =key;
+				newPlayer.x=p.x;
+				newPlayer.y=p.y;
+				newPlayer.crosshair.angle=p.deg*Math.PI/180;
+				newPlayer.color=p.color;
+			}
+		}
+	}
+});
+
 var player;
-var enemies=[];
+var players={};
 var Player = function(x,y){
   this.x=x;
   this.y=y;
@@ -61,8 +97,7 @@ var Bullet = function(x,y){
     if (this.y-this.radius<0) return true;
   }
 }
-setup();
-run();
+
 //initialize canvas and ctx
 function setup(){
   c_width=$(document.body).width();
@@ -74,8 +109,8 @@ function setup(){
   ctx = canvas.getContext("2d");
 
   createObstacles();
-  createPlayer('red');
-
+  //createPlayer('red');
+	
   initListeners();
 }
 //generate obstacles based on document
@@ -160,13 +195,15 @@ function initListeners(){
   $(document).bind('mousewheel DOMMouseScroll', function(e){
     e.preventDefault();
   });
-
+  
 }
 //start interval
 function run(){
   drawInterval=setInterval(function(){
     update();
     render();
+	if(player)
+		port.postMessage({pid:player.pid,x:player.x,y:player.y,deg:player.crosshair.angle*180/Math.PI});
   },16.7);
 }
 function stop(){
@@ -180,6 +217,7 @@ var KEY_LEFT = 65;
 var KEY_RIGHT = 68;
 var KEY_ESC = 27;
 function update(){
+
   //move player
   if (KEY_UP in keysDown) { 
     if (player.y-player.radius>=0) {
@@ -231,14 +269,12 @@ function update(){
     }
   }
 
-
-
   player.crosshair.update(player.x,player.y,mousePos.x,mousePos.y);
 
   var winHeight = $(window).innerHeight();
   $(document).scrollTop(player.y - (winHeight * 0.5));
   
-  if('mouse' in keysDown){
+  if(player && 'mouse' in keysDown){
     bullets.push(new Bullet(mousePos.x,mousePos.y));
   }
   var bulletGrid = {};
@@ -280,34 +316,50 @@ function update(){
       }
     }
   });
-  
-  // Object.keys(bulletGrid).forEach(function(key) {
-  //   for (var i=0;i<bulletGrid[key].length;i++) {
-  //     for (var j=0;j<obstacles.length;j++) {
-  //       var bulletIndex = bulletGrid[key][i];
-  //       var obMinX = obstacles[j].x;
-  //       var obMaxX = obMinX+obstacles[j].width;
-  //       var obMinY = obstacles[j].y;
-  //       var obMaxY = obMinY+obstacles[j].height;
-  //       if (bullets[bulletIndex].x < obMaxX && bullets[bulletIndex].x > obMinX
-  //         && bullets[bulletIndex].y < obMaxY && bullets[bulletIndex].y > obMinY)
-  //         deadBullets.push(bulletGrid[key][i]);
-  //     }
-  //   }
-  // });
+
   for (var i=0;i<deadBullets.length;i++) {
     bullets.splice(deadBullets[i],1);
   };
   for (var i=bullets.length-1;i>=0;i--) {
     if(bullets[i].isDead()) { bullets.splice(i,1); }
   }
+  
+  if(!player)
+	return;
+  
+  //move player
+  if (KEY_UP in keysDown) { 
+    if (player.y-player.radius>=0) {
+      player.y -= player.speed;
+    }
+  }
+  if (KEY_DOWN in keysDown) { 
+    if (player.y+player.radius<=canvas.height) {
+      player.y += player.speed;
+    }
+  }
+  if (KEY_LEFT in keysDown) { 
+    if (player.x-player.radius >= 0) {
+      player.x -= player.speed;
+    }
+  }
+  if (KEY_RIGHT in keysDown) { 
+    if (player.x+player.radius <= canvas.width) {
+      player.x += player.speed;
+    }
+  }
+  player.crosshair.update(player.x,player.y,mousePos.x,mousePos.y);
+
+  var winHeight = $(window).innerHeight();
+  $(document).scrollTop(player.y - (winHeight * 0.5));
+  
 }
 //rendering functions
 var drawGrid=false;
 function render(){
   renderBG();
   renderObstacles();
-  renderPlayer();
+  renderPlayers();
   renderBullets();
   ctx.fillStyle='black';
   /* draw grid */
@@ -335,25 +387,29 @@ function renderObstacles(){
     ctx.strokeRect(obstacles[i].x,obstacles[i].y,obstacles[i].width,obstacles[i].height);
   }
 }
-function renderPlayer(){
-  //player
-  ctx.beginPath();
-  ctx.arc(player.x, player.y, player.radius, 0, 2*Math.PI, false);
-  ctx.lineWidth = player.lineWidth;
-  ctx.strokeStyle = player.color;
-  ctx.stroke();
-  ctx.fillStyle = 'rgba(255,0,0,.5)';
-  ctx.fill();
-  ctx.closePath();
-  //crosshair
-  ctx.beginPath();
-  ctx.arc(player.crosshair.x, player.crosshair.y, player.crosshair.radius, 0, 2*Math.PI, false);
-  ctx.lineWidth = player.crosshair.lineWidth;
-  ctx.strokeStyle = player.crosshair.color;
-  ctx.stroke();
-  ctx.fillStyle = 'rgba(255,0,0,.5)';
-  ctx.fill();
-  ctx.closePath();
+
+function renderPlayers(){
+	for(var key in players){
+		var entity = players[key];
+			//entity
+		  ctx.beginPath();
+		  ctx.arc(entity.x, entity.y, entity.radius, 0, 2*Math.PI, false);
+		  ctx.lineWidth = entity.lineWidth;
+		  ctx.strokeStyle = entity.color;
+		  ctx.stroke();
+		  ctx.fillStyle = 'rgba(255,0,0,.5)';
+		  ctx.fill();
+		  ctx.closePath();
+		  //crosshair
+		  ctx.beginPath();
+		  ctx.arc(entity.crosshair.x, entity.crosshair.y, entity.crosshair.radius, 0, 2*Math.PI, false);
+		  ctx.lineWidth = entity.crosshair.lineWidth;
+		  ctx.strokeStyle = entity.crosshair.color;
+		  ctx.stroke();
+		  ctx.fillStyle = 'rgba(255,0,0,.5)';
+		  ctx.fill();
+		  ctx.closePath();
+	}
 }
 function renderBullets(){
   for (var i=0;i<bullets.length;i++){

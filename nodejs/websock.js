@@ -1,5 +1,5 @@
 require('./PacketDesc.js');
-var io = require('socket.io').listen(8456);
+var io = require('socket.io').listen(8456,{log:false});
 var server={
 	users:{},
 	rooms:{},
@@ -30,20 +30,56 @@ function respondOpenPage(usr,socket,msg){
 function sendClientList(socket,page){
 	var msg = new Packet(PacketTypes.CLIENTLIST);
 	msg.clients = page.num;
-	socket.emit('message',msg);
+	socket.volatile.emit('message',msg);
 }
-
+function randomColor(){
+	return "rgba("+Math.floor(Math.random()*256)+","+
+		Math.floor(Math.random()*256)+","+
+		Math.floor(Math.random()*256)+",0.5)";
+}
+function constructNewPlayerPacket(id,x,y,color)
+{
+	var pkt = new Packet(PacketTypes.CREATEPLAYER);
+	pkt.pid=id;
+	pkt.x=x;
+	pkt.y=y;
+	pkt.rgb=color;
+	return pkt;
+}
+function constructNewPlayerIDPacket(id)
+{
+	var pkt = new Packet(PacketTypes.SETPLAYERID);
+	pkt.pid=id;
+	return pkt;
+}
 function respondJoinGame(usr,socket,msg){
 	if(msg.url){
-		if(usr.room)
+		console.log("game joined! "+msg.url);
+		if(usr.room){
 			socket.leave(usr.room);
+			var room = server.rooms[usr.room];
+			room.numPlayers--;
+			if(room.numPlayers<1){
+				if(room.timer)
+					clearInterval(room.timer);
+				delete server.rooms[usr.room];
+			}
+		}
 		var newRoom=msg.url;
 		// currently rooms are assigned as msg.url+msg.checksum
 		console.log("client joined an awesome room.");
 		socket.join(newRoom);
-		if(!server.rooms[newRoom])
+		if(!server.rooms[newRoom]){
 			server.rooms[newRoom]=new Room(newRoom);
+			setupRoom(server.rooms[newRoom]);
+		}
 		server.rooms[newRoom].addPlayer(usr);
+		usr.x=100;
+		usr.y=100;
+		usr.deg=0;
+		usr.color= randomColor();
+		io.sockets.in(usr.room).emit('message',constructNewPlayerPacket(usr.pid,500,500,randomColor()));
+		socket.volatile.emit('message',constructNewPlayerIDPacket(usr.pid));
 	}
 }
 
@@ -56,14 +92,12 @@ function respondFireBullet(usr,socket,msg){
 }
 
 function respondUpdatePlayer(usr,socket,msg){
-	if(usr.room && usr.pid && msg.x && msg.y && msg.deg)
+	if(usr.pid && msg.x && msg.y && msg.deg)	
 	{
 		usr.x=msg.x;
 		usr.y=msg.y;
 		usr.deg=msg.deg;
-		msg.pid = usr.pid;
 		//Do some collision detection here.
-		socket.broadcast.to(usr.room).emit('message',msg);
 	}
 }
 
@@ -99,3 +133,25 @@ io.sockets.on('connection', function (socket) {
 		delete server.users[socket.id];
 	});
 });
+
+function setupRoom(room){
+	room.timer=setInterval(updateRoom,16,room);
+}
+
+function updateRoom(room){
+	var update = {
+		id:PacketTypes.UPDATEPLAYER,
+		players:{}
+	};
+	for(var pid in room.players){
+		var player = room.players[pid];
+		var tmp = {
+			x:player.x,
+			y:player.y,
+			deg:player.deg,
+			rgba:player.color
+		};
+		update.players[player.pid]=tmp;
+	}
+	io.sockets.in(room.id).emit('message',update);
+}

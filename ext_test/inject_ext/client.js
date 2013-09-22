@@ -3,6 +3,7 @@ function respondClientList(socket,msg){
 }
 function respondCreatePlayer(socket,msg){
 	//construct player on the canvas.
+	currentport.postMessage(msg);
 }
 function respondUpdatePlayer(socket,msg){
 	//update player on the canvas
@@ -30,9 +31,8 @@ function sendJoinGame(url){
 }
 
 
-var socket = io.connect('http://infinitegde-nodejs.jit.su/');
+var socket = io.connect('http://infinitegde-nodejs.jit.su/');//"http://localhost:8456/");//
   socket.on('connect', function () {
-	socket.emit('message',{name:'adukyo'});
     socket.on('message', function (msg) {
 		if(msg && msg.type){
 			switch(msg.type){
@@ -40,7 +40,9 @@ var socket = io.connect('http://infinitegde-nodejs.jit.su/');
 					respondClientList(socket,msg);
 				break;
 				case PacketTypes.CREATEPLAYER:
-					respondCreatePlayer(socket,msg);
+				case PacketTypes.SETPLAYERID:
+				case PacketTypes.UPDATEPLAYER:
+					currentport.postMessage(msg);
 				break;
 			}
 		}else if(msg){

@@ -12,7 +12,7 @@
   ],
 
   "background": {
-    "scripts": ["background.js","socket.io.min.js","add_canvas_auto_load.js","client.js","packetDesc.js"]
+    "scripts": ["background.js","socket.io.min.js","client.js","packetDesc.js"]
   },
 
   "browser_action": {
@@ -22,9 +22,9 @@
 
   "content_scripts": [
     {
-      "matches": ["http://*/*"],
+      "matches": ["<all_urls>"],
       "css": ["canvas.css"],
-      "js": ["jquery-1.10.2.js"]
+      "js": ["jquery-1.10.2.js","add_canvas_auto_load.js","PacketDesc.js"]
     }
   ],
 

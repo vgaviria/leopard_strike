@@ -3,7 +3,7 @@ PacketTypes= {
 	CLIENTLIST:2,		// params clients - SERVER
 	JOINGAME:3,			// params url, checksum - CLIENT
 	CREATEPLAYER:4,		// params pid, x, y, rgb -SERVER
-	UPDATEPLAYER:5,		// params pid,x,y, deg -SERVER & CLIENT
+	UPDATEPLAYER:5,		// params pid, x,y, deg -SERVER & CLIENT
 	CREATEFX:6,			// params CreateFXParams -SERVER
 	DAMAGEPLAYER:7,		// params playerid, hp -SERVER
 	SETPLAYERID:8,		// params pid -SERVER
@@ -31,14 +31,6 @@ Room = function(id){
 	this.numPlayers=0;
 	this.players={};
 	this.bullets=[];
-}
-
-Bullet = function(x,y,vx,vy,size){
-	this.x=x;
-	this.y=y;
-	this.vx=vx;
-	this.vy=vy;
-	this.size=size;
 }
 
 Room.prototype.addPlayer= 
