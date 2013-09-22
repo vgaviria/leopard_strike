@@ -111,13 +111,20 @@ function respondJoinGame(usr,socket,msg){
 		usr.room=newRoom;
 		if(flagNewRoom)
 			requestLevelLayout(usr,socket);
-		else{
+		else if(server.rooms[newRoom].obstacles){
+			var room = server.rooms[newRoom];
+			var msg = new Packet(PacketTypes.SERVELEVEL);
+			msg.noObstacles=room.noObstacles;
+			msg.obstacles=room.obstacles;
+			var spawnPoint = room.noObstacles[Math.floor(Math.random()*room.noObstacles.length)];
+			usr.x = Math.floor(spawnPoint.i*CELL_SIZE)+15;
+			usr.y = Math.floor(spawnPoint.j*CELL_SIZE)+15;
+			usr.sock.volatile.emit(msg);
 			for( var key in server.rooms[newRoom].players){
 				var p = server.rooms[newRoom].players[key];
 				p.sock.volatile.emit('message',constructNewPlayerPacket(usr.pid,usr.x,usr.y,usr.color));
 			}
-			if(server.rooms[newRoom].obstacles)
-				socket.volatile.emit('message',constructNewPlayerIDPacket(usr.pid));
+			socket.volatile.emit('message',constructNewPlayerIDPacket(usr.pid));
 		}
 	}
 }

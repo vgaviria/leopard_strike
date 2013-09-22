@@ -25,6 +25,7 @@ function respondObtainLevel(msg){
 }
 function respondServeLevel(socket,msg){
 	//serve a level back to a requesting player
+	currentport.postMessage(msg);
 }
 
 function sendOpenPage(url){
