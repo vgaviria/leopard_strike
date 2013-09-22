@@ -178,7 +178,8 @@ function updateRoom(room){
 		update.bullets=[];
 		for(var pid in room.players){
 			if(key!=pid){
-				update.bullets=update.bullets.concat(p.bullets);
+				var p2 = room.players[pid];
+				update.bullets=update.bullets.concat(p2.bullets);
 			}
 		} 
 		p.sock.volatile.emit('message',update);

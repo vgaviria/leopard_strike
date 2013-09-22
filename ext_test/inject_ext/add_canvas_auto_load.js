@@ -57,8 +57,18 @@ port.onMessage.addListener(function(msg) {
 			if(!msg.players[key])
 				delete players[key];
 		}
-		if(msg.bullets)
-			bullets= bullets.concat(msg.bullets);
+		if(msg.bullets){
+			for(var i=0;i<msg.bullets.length;i++)
+			{
+				var b = msg.bullets[i];
+				var nb = new Bullet(0,0);
+				nb.x=b.x;
+				nb.y=b.y;
+				nb.speed=b.v;
+				nb.angle=b.deg;
+				bullets.push(nb);
+			}
+		}
 	}
   if(msg && msg.type==PacketTypes.REQUESTLEVEL){
     createObstacles();
@@ -112,6 +122,19 @@ var Bullet = function(x,y){
     if (this.x-this.radius<0) return true;
     if (this.y+this.radius>canvas.height) return true;
     if (this.y-this.radius<0) return true;
+  }
+}
+
+function fixBullet(b){
+	b.move=function(){
+    b.x+=b.speed*Math.cos(b.angle);
+    b.y+=b.speed*Math.sin(b.angle);
+  }
+  b.isDead=function(){
+    if (b.x+b.radius>canvas.width) return true;
+    if (b.x-b.radius<0) return true;
+    if (b.y+b.radius>canvas.height) return true;
+    if (b.y-b.radius<0) return true;
   }
 }
 
