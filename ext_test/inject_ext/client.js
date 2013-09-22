@@ -19,7 +19,8 @@ function respondSetPlayerId(socket,msg){
 	//set the player id so we know which
 }
 function respondObtainLevel(msg){
-	//msg.obstacles contains the map obstacles
+	//msg.obstacles msg.noObstacles are the 2 important things
+	//used in player spawn point stuff + player needs
 }
 function respondServeLevel(socket,msg){
 	//serve a level back to a requesting player
