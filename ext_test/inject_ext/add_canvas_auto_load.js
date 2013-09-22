@@ -245,10 +245,10 @@ function run(){
     update();
     render();
 	if(player){
-		if(updateCounter++>30){
+		if(updateCounter--<0){
 			port.postMessage({pid:player.pid,x:player.x,y:player.y,deg:player.crosshair.angle*180/Math.PI,bullets:newBullets});
 			newBullets=[];
-			updateCounter=0;
+			updateCounter=8;
 		}
 	}
   },16.7);
@@ -268,7 +268,9 @@ function update(){
   if(player && 'mouse' in keysDown){
 	var b = new Bullet(mousePos.x,mousePos.y);
     bullets.push(b);
-	newBullets.push({x:b.x,y:b.y,v:b.speed,deg:b.angle});
+	var xoff = updateCounter*b.speed*Math.cos(b.angle),
+		yoff = updateCounter*b.speed*Math.sin(b.angle);
+	newBullets.push({x:b.x+xoff,y:b.y+yoff,v:b.speed,deg:b.angle});
   }
   var bulletGrid = {};
   var deadBullets = [];

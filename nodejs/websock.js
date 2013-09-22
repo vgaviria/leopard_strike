@@ -151,7 +151,7 @@ io.sockets.on('connection', function (socket) {
 });
 
 function setupRoom(room){
-	room.timer=setInterval(updateRoom,20,room);
+	room.timer=setInterval(updateRoom,32,room);
 }
 
 function updateRoom(room){
