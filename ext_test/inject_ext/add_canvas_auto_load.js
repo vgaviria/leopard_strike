@@ -287,13 +287,14 @@ function update(){
         //check for player collision
         var playerXCell = Math.floor(player.x/CELL_SIZE);
         var playerYCell = Math.floor(player.y/CELL_SIZE);
-        if(vals[0] == playerXCell && vals[1] == playerYCell){
+        //fix
+        if((vals[0] == playerXCell || vals[0] == playerXCell+1) && 
+           (vals[1] == playerYCell || vals[1] == playerYCell+1)){
           for(var i = 0; i<bulletGrid[key].length; i++){
             var bullet = bullets[bulletGrid[key][i]];
-            if(Math.abs(player.x - bullet.x) < (player.radius + bullet.radius) &&
-               Math.abs(player.y - bullet.y) < (player.radius + bullet.radius))
+
+            if(Math.sqrt(Math.pow(player.x - bullet.x,2) + Math.pow(player.y - bullet.y,2)) < (player.radius + bullet.radius))
             {
-              // console.log(bullet,"Deleting bullet!!");
               deadBullets.push(bulletGrid[key][i]);
             }
           }
