@@ -74,13 +74,20 @@ port.onMessage.addListener(function(msg) {
 			for(var i=0;i<msg.bullets.length;i++)
 			{
 				var b = msg.bullets[i];
-				var nb = new Bullet(0,0);
-				nb.x=b.x;
-				nb.y=b.y;
-				nb.speed=b.v;
-				nb.angle=b.deg;
-				nb.color=b.color;
-				bullets.push(nb);
+				if(b.mine){
+					var nb = new Mine(b.x,b.y);
+					nb.color=b.color;
+					bullets.push(nb);
+				}
+				else{
+					var nb = new Bullet(0,0);
+					nb.x=b.x;
+					nb.y=b.y;
+					nb.speed=b.v;
+					nb.angle=b.deg;
+					nb.color=b.color;
+					bullets.push(nb);
+				}
 			}
 			if(msg.blood)
 				blood=blood.concat(msg.blood);
@@ -300,6 +307,7 @@ function initListeners(){
     if(e.keyCode === 69){
       if(player && playerMineCount != MINE_MAX){
         bullets.push(new Mine(player.x,player.y));
+		newBullets.push({x:player.x,y:player.y,mine:player.pid,color:player.color});
         playerMineCount++;
       }
     }
@@ -395,8 +403,9 @@ function update(){
         newBlood.push(new Blood(player.x,player.y));
       }
       else if(bullets[i].type && bullets[i].type === MINES_TYPE && 
-              bullets[i].owner && bullets[i].ownerId === player.pid)
+             bullets[i].ownerId != player.pid)
       {
+		playerMineCount--;
         player.health -= 8;
         deadBullets.push(i);
         newBlood.push(new Blood(player.x,player.y));
