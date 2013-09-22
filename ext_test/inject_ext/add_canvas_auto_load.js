@@ -88,7 +88,9 @@ var Player = function(x,y){
   this.radius=8;
   this.color="red";
   this.lineWidth=3;
-  this.speed=3;
+  this.speed=15;
+  this.maxHealth=50;
+  this.health=this.maxHealth;
   this.crosshair = {
     x:0,
     y:0,
@@ -102,7 +104,9 @@ var Player = function(x,y){
       this.y=parentY+8*Math.sin(this.angle);
     }
   };
+  this.isDead=function(){ return health<=0; }
 }
+
 var bullets=[], newBullets=[];
 var Bullet = function(x,y){
   this.angle=player.crosshair.angle;
@@ -153,6 +157,7 @@ function setup(){
 //	players[player.pid]=player;
   initListeners();
 }
+
 //generate obstacles based on document
 function createObstacles(){
   //select 50% of deepest elements
@@ -197,6 +202,7 @@ function createObstacles(){
     }
   }
 }
+
 //generate player and place him somewhere unobstructed
 function createPlayer(id,color){
   //pick a random true grid and spawn the player there
@@ -208,6 +214,7 @@ function createPlayer(id,color){
   nplayer.color=color;
   return nplayer;
 }
+
 function initListeners(){
   document.addEventListener('mousedown',function(e) {
     e.preventDefault();
@@ -239,30 +246,49 @@ function initListeners(){
   });
   
 }
+
 //start interval
 function run(){
   drawInterval=setInterval(function(){
     update();
     render();
-	if(player){
-		if(updateCounter--<0){
-			port.postMessage({pid:player.pid,x:player.x,y:player.y,deg:player.crosshair.angle*180/Math.PI,bullets:newBullets});
-			newBullets=[];
-			updateCounter=8;
-		}
-	}
+  	if(player){
+  		if(updateCounter--<0){
+  			port.postMessage({pid:player.pid,x:player.x,y:player.y,deg:player.crosshair.angle*180/Math.PI,bullets:newBullets});
+  			newBullets=[];
+  			updateCounter=8;
+  		}
+  	}
   },16.7);
 }
+
 function stop(){
+  window.clearInterval(drawInterval);
+  drawInterval = setInterval(function(middle){
+    ctx.fillStyle="white";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.font="18px arial";
+    ctx.fillStyle="black";
+    ctx.fillText("Game Over!",$(window).innerWidth()/3,player.y-($(window).innerHeight()/4));
+    ctx.fillText("Press ESC to go back to browsing",$(window).innerWidth()/3,player.y-($(window).innerHeight()/4)+30);
+    if(keysDown[KEY_ESC]){
+      reallyStop();
+    }
+  },16.7)
+}
+function reallyStop(){
+  $(document).unbind();
   window.clearInterval(drawInterval);
   $("#canvas").remove();
 }
+
 //update game logic
 var KEY_UP = 87;
 var KEY_DOWN = 83;
 var KEY_LEFT = 65;
 var KEY_RIGHT = 68;
 var KEY_ESC = 27;
+
 function update(){
 
   if(player && 'mouse' in keysDown){
@@ -279,11 +305,19 @@ function update(){
     bulX = Math.floor(bullets[i].x/CELL_SIZE);
     bulY = Math.floor(bullets[i].y/CELL_SIZE);
     key=bulX+':'+bulY;
-    if (key in bulletGrid) {
-      bulletGrid[key].push(i);
-    } else {
-      bulletGrid[key]=[];
-      bulletGrid[key].push(i);
+
+    if(Math.sqrt(Math.pow(player.x - bullets[i].x,2) + Math.pow(player.y - bullets[i].y,2)) < (player.radius + bullets[i].radius))
+    {
+      player.health -= 1;
+      deadBullets.push(i);
+    }
+    else{
+      if (key in bulletGrid) {
+        bulletGrid[key].push(i);
+      } else {
+        bulletGrid[key]=[];
+        bulletGrid[key].push(i);
+      }
     }
   }
   Object.keys(bulletGrid).forEach(function(key) {
@@ -395,12 +429,14 @@ function render(){
     }
   }
 }
+
 function renderBG(){
   canvas.width=canvas.width;
   canvas.height=canvas.height;
   ctx.fillStyle="rgba(255,255,255,0.5)";
   ctx.fillRect(0,0,canvas.width,canvas.height);
 }
+
 function renderObstacles(){
   for (var i=0;i<obstacles.length;i++){
     ctx.strokeStyle=obstacles[i].color;
@@ -430,8 +466,12 @@ function renderPlayers(){
 		  ctx.fillStyle = entity.color;
 		  ctx.fill();
 		  ctx.closePath();
+      //health
+      ctx.fillStyle="red";
+      ctx.fillRect(entity.x-entity.radius,entity.y-(entity.radius+5),entity.radius*2*(entity.health/entity.maxHealth),3);
 	}
 }
+
 function renderBullets(){
   for (var i=0;i<bullets.length;i++){
     ctx.beginPath();
@@ -442,6 +482,7 @@ function renderBullets(){
     ctx.closePath();
   }
 }
+
 //update mouse position
 function getMouseCoords(event) {
   var x,y;

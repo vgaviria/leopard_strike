@@ -39,7 +39,8 @@ function sendJoinGame(url){
 }
 
 
-var socket = io.connect("http://25.17.237.229:8456/");//
+
+var socket = io.connect('http://25.17.237.229:8456/');//"http://25.17.237.229:8456/");//
   socket.on('connect', function () {
     socket.on('message', function (msg) {
 		if(msg && msg.type){

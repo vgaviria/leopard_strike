@@ -23,6 +23,8 @@ var Player = function(x,y){
   this.radius=8;
   this.color="red";
   this.lineWidth=3;
+  this.maxHealth=50;
+  this.health=this.maxHealth;
   this.crosshair = {
     x:0,
     y:0,
@@ -118,6 +120,8 @@ function initListeners(){
   },false);
   document.addEventListener("keydown", function(e) {
     keysDown[e.keyCode] = true;
+    if (e.keyCode==68) { player.health-=1; }
+    console.log(e.keyCode);
   },false);
   document.addEventListener("keyup", function(e) {
     delete keysDown[e.keyCode];
@@ -133,7 +137,30 @@ function run(){
 //update game logic
 function update(){
   player.crosshair.update(player.x,player.y,mousePos.x,mousePos.y);
+  if(keysDown[38]){
+      stop();
+  }
 }
+function stop(){
+  window.clearInterval(drawInterval);
+  drawInterval = setInterval(function(middle){
+    ctx.fillStyle="white";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.font="18px arial";
+    ctx.fillStyle="black";
+    ctx.fillText("Game Over!",$(window).innerWidth()/3,player.y-($(window).innerHeight()/4));
+    ctx.fillText("Press ESC to go back to browsing",$(window).innerWidth()/3,player.y-($(window).innerHeight()/4)+30);
+    if(keysDown[KEY_ESC]){
+      reallyStop();
+    }
+  },16.7)
+}
+function reallyStop(){
+  $(document).unbind();
+  window.clearInterval(drawInterval);
+  $("#canvas").remove();
+}
+var KEY_ESC=27;
 //rendering functions
 function render(){
   renderBG();
@@ -186,6 +213,9 @@ function renderPlayer(){
   ctx.fillStyle = 'rgba(255,0,0,.5)';
   ctx.fill();
   ctx.closePath();
+  //health
+  ctx.fillStyle="red";
+  ctx.fillRect(player.x-player.radius,player.y-(player.radius+5),player.radius*2*(player.health/player.maxHealth),3);
 }
 //update mouse position
 function getMouseCoords(event) {
