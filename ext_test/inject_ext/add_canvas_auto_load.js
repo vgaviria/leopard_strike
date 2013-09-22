@@ -217,7 +217,8 @@ var KEY_LEFT = 65;
 var KEY_RIGHT = 68;
 var KEY_ESC = 27;
 function update(){
-
+  if(!player)
+  return;
   //move player
   if (KEY_UP in keysDown) { 
     if (player.y-player.radius>=0) {
@@ -322,31 +323,6 @@ function update(){
   };
   for (var i=bullets.length-1;i>=0;i--) {
     if(bullets[i].isDead()) { bullets.splice(i,1); }
-  }
-  
-  if(!player)
-	return;
-  
-  //move player
-  if (KEY_UP in keysDown) { 
-    if (player.y-player.radius>=0) {
-      player.y -= player.speed;
-    }
-  }
-  if (KEY_DOWN in keysDown) { 
-    if (player.y+player.radius<=canvas.height) {
-      player.y += player.speed;
-    }
-  }
-  if (KEY_LEFT in keysDown) { 
-    if (player.x-player.radius >= 0) {
-      player.x -= player.speed;
-    }
-  }
-  if (KEY_RIGHT in keysDown) { 
-    if (player.x+player.radius <= canvas.width) {
-      player.x += player.speed;
-    }
   }
   player.crosshair.update(player.x,player.y,mousePos.x,mousePos.y);
 
