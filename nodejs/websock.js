@@ -112,7 +112,7 @@ function respondUpdatePlayer(usr,socket,msg){
 		usr.x=msg.x;
 		usr.y=msg.y;
 		usr.deg=msg.deg;
-		usr.bullets= concat(usr.bullets,msg.bullets);
+		usr.bullets= usr.bullets.concat(msg.bullets);
 		//Do some collision detection here.
 	}
 }
@@ -176,12 +176,17 @@ function updateRoom(room){
 	for( var key in room.players){
 		var p = room.players[key];
 		update.bullets=[];
-		for(var key in room.players){
+		for(var pid in room.players){
 			if(key!=pid){
-				update.bullets=concat(update.bullets,p.bullets);
+				update.bullets=update.bullets.concat(p.bullets);
 			}
 		} 
 		p.sock.volatile.emit('message',update);
+	}
+	
+	for( var key in room.players){
+		var p = room.players[key];
+		p.bullets=[];
 	}
 	
 }
