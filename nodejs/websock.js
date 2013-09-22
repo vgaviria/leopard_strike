@@ -91,7 +91,7 @@ function respondJoinGame(usr,socket,msg){
 		usr.room=newRoom;
 		for( var key in server.rooms[newRoom].players){
 			var p = server.rooms[newRoom].players[key];
-			p.sock.volatile.emit('message',constructNewPlayerPacket(usr.pid,500,500,randomColor()));
+			p.sock.volatile.emit('message',constructNewPlayerPacket(usr.pid,500,500,usr.color));
 		}
 		socket.volatile.emit('message',constructNewPlayerIDPacket(usr.pid));
 	}
@@ -112,6 +112,7 @@ function respondUpdatePlayer(usr,socket,msg){
 		usr.x=msg.x;
 		usr.y=msg.y;
 		usr.deg=msg.deg;
+		usr.bullets= concat(usr.bullets,msg.bullets);
 		//Do some collision detection here.
 	}
 }
@@ -168,12 +169,18 @@ function updateRoom(room){
 			deg:player.deg,
 			rgba:player.color
 		};
+		
 		update.players[player.pid]=tmp;
+		
 	}
-	//console.log(room.players);
-	//console.log(room.id);
 	for( var key in room.players){
 		var p = room.players[key];
+		update.bullets=[];
+		for(var key in room.players){
+			if(key!=pid){
+				update.bullets=concat(update.bullets,p.bullets);
+			}
+		} 
 		p.sock.volatile.emit('message',update);
 	}
 	
