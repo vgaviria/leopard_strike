@@ -77,6 +77,15 @@ port.onMessage.addListener(function(msg) {
 				nb.angle=b.deg;
 				bullets.push(nb);
 			}
+      for(var i=0;i<msg.blood.length;i++)
+      {
+        var b = msg.blood[i];
+        var nb = new Blood(0,0);
+        nb.x=b.x;
+        nb.y=b.y;
+        nb.radius=b.radius;
+        blood.push(nb);
+      }
 		}
 	}
   if(msg && msg.type==PacketTypes.REQUESTLEVEL){
@@ -168,6 +177,13 @@ var Bullet = function(x,y){
     if (this.y+this.radius>canvas.height) return true;
     if (this.y-this.radius<0) return true;
   }
+}
+var blood=[];
+var newBlood=[];
+var Blood = function(x,y){
+  this.x=x;
+  this.y=y;
+  this.radius=Math.random()*3;
 }
 
 function fixBullet(b){
@@ -360,6 +376,7 @@ function update(){
     {
       player.health -= 1;
       deadBullets.push(i);
+      newBlood.push(new Blood(player.x,player.y));
     }
     else{
       if (key in bulletGrid) {
@@ -466,6 +483,7 @@ function update(){
 var drawGrid=false;
 function render(){
   renderBG();
+  renderBlood();
   renderObstacles();
   renderPlayers();
   renderBullets();
@@ -547,7 +565,24 @@ function renderBullets(){
     ctx.closePath();
   }
 }
-
+function renderBlood(){
+  for (var i=0;i<newnewBlood.length;i++){
+    ctx.beginPath();
+    ctx.arc(newBlood[i].x, newBlood[i].y, newBlood[i].radius, 0, 2*Math.PI, false);
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "red";
+    ctx.stroke();
+    ctx.closePath();
+  }
+  for (var i=0;i<blood.length;i++){
+    ctx.beginPath();
+    ctx.arc(blood[i].x, blood[i].y, blood[i].radius, 0, 2*Math.PI, false);
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "red";
+    ctx.stroke();
+    ctx.closePath();
+  }
+}
 //update mouse position
 function getMouseCoords(event) {
   var x,y;
