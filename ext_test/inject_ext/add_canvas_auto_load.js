@@ -50,6 +50,7 @@ port.onMessage.addListener(function(msg) {
 				ours.x=p.x;
 				ours.y=p.y;
 				ours.health=p.hp;
+				ours.color=p.color;
 				ours.crosshair.angle=p.deg*Math.PI/180;
 			}else{
 				var newPlayer = new Player(p.x,p.y);
@@ -75,6 +76,7 @@ port.onMessage.addListener(function(msg) {
 				nb.y=b.y;
 				nb.speed=b.v;
 				nb.angle=b.deg;
+				nb.color=b.color;
 				bullets.push(nb);
 			}
 			if(msg.blood)
@@ -320,8 +322,9 @@ function run(){
 }
 
 function stop(){
-  window.clearInterval(drawInterval);
-  drawInterval = setInterval(function(middle){
+	port.postMessage({quit:"now"});
+	window.clearInterval(drawInterval);
+	drawInterval = setInterval(function(middle){
     var cool;
     if (player.y>=$(window).innerHeight()/2){
       cool=player.y-$(window).innerHeight()/4;
@@ -336,7 +339,6 @@ function stop(){
     ctx.fillText("Press ESC to go back to browsing",$(window).innerWidth()/3,cool+30);
     if(keysDown[KEY_ESC]){
   		reallyStop();
-  		port.postMessage({quit:"now"});
   	}
   },16.7);
 }
@@ -344,6 +346,7 @@ function reallyStop(){
   $(document).unbind();
   window.clearInterval(drawInterval);
   $("#canvas").remove();
+  port.postMessage({quit:"now"});
 }
 
 //update game logic
@@ -360,7 +363,7 @@ function update(){
       bullets.push(b);
   	var xoff = updateCounter*b.speed*Math.cos(b.angle),
   		yoff = updateCounter*b.speed*Math.sin(b.angle);
-  	newBullets.push({x:b.x+xoff,y:b.y+yoff,v:b.speed,deg:b.angle});
+  	newBullets.push({x:b.x+xoff,y:b.y+yoff,v:b.speed,deg:b.angle,color:player.color});
   }
 
   for(var i =0;i<playerMines.length;i++){
