@@ -23,6 +23,8 @@ var Player = function(x,y){
   this.radius=8;
   this.color="red";
   this.lineWidth=3;
+  this.maxHealth=50;
+  this.health=this.maxHealth;
   this.crosshair = {
     x:0,
     y:0,
@@ -118,6 +120,7 @@ function initListeners(){
   },false);
   document.addEventListener("keydown", function(e) {
     keysDown[e.keyCode] = true;
+    if (e.keyCode==68) { player.health-=1; }
     console.log(e.keyCode);
   },false);
   document.addEventListener("keyup", function(e) {
@@ -210,6 +213,9 @@ function renderPlayer(){
   ctx.fillStyle = 'rgba(255,0,0,.5)';
   ctx.fill();
   ctx.closePath();
+  //health
+  ctx.fillStyle="red";
+  ctx.fillRect(player.x-player.radius,player.y-(player.radius+5),player.radius*2*(player.health/player.maxHealth),3);
 }
 //update mouse position
 function getMouseCoords(event) {
