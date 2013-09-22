@@ -119,7 +119,8 @@ function respondJoinGame(usr,socket,msg){
 			var spawnPoint = room.noObstacles[Math.floor(Math.random()*room.noObstacles.length)];
 			usr.x = Math.floor(spawnPoint.i*CELL_SIZE)+15;
 			usr.y = Math.floor(spawnPoint.j*CELL_SIZE)+15;
-			usr.sock.volatile.emit(msg);
+			usr.sock.emit(msg);
+			console.log(msg);
 			for( var key in server.rooms[newRoom].players){
 				var p = server.rooms[newRoom].players[key];
 				p.sock.volatile.emit('message',constructNewPlayerPacket(usr.pid,usr.x,usr.y,usr.color));

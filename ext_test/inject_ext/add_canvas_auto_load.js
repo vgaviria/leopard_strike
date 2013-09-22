@@ -113,7 +113,7 @@ var Player = function(x,y){
       this.y=parentY+8*Math.sin(this.angle);
     }
   };
-  this.isDead=function(){ return health<=0; }
+  this.isDead=function(){ return this.health<=0; }
 }
 
 var playerMines = [];
