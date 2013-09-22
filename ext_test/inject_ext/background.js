@@ -1,6 +1,7 @@
 var currentView;
 
 currentTabURL = "";
+currentTabId = null;
 currentport=null;
 var currentView = undefined;
 isGamePlaying = false;
@@ -40,6 +41,7 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
 	chrome.tabs.get(activeInfo.tabId, function(tab) {
 		if(tab.url){
 			currentTabURL = tab.url;
+			currentTabId = tab.id;
 			sendOpenPage(currentTabURL);
 		}
 	});

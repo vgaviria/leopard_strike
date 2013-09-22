@@ -36,7 +36,7 @@ function sendClientList(socket,page){
 function randomColor(){
 	return "rgba("+Math.floor(Math.random()*256)+","+
 		Math.floor(Math.random()*256)+","+
-		Math.floor(Math.random()*256)+",0.5)";
+		Math.floor(Math.random()*256)+",1)";
 }
 function constructNewPlayerPacket(id,x,y,color)
 {
@@ -58,9 +58,7 @@ function respondJoinGame(usr,socket,msg){
 		if(usr.room){
 			
 			console.log("player left("+usr.pid+"): "+msg.url);
-			socket.leave(usr.room);
 			var room = server.rooms[usr.room];
-			room.numPlayers--;
 			if(room.numPlayers<1){
 				console.log("game closed:"+msg.url);
 				if(room.timer)
@@ -70,7 +68,6 @@ function respondJoinGame(usr,socket,msg){
 		}
 		var newRoom=msg.url;
 		// currently rooms are assigned as msg.url+msg.checksum
-		socket.join(newRoom);
 		if(!server.rooms[newRoom]){
 			server.rooms[newRoom]=new Room(newRoom);
 			console.log("new room created:"+newRoom);
@@ -82,7 +79,10 @@ function respondJoinGame(usr,socket,msg){
 		usr.y=100;
 		usr.deg=0;
 		usr.color= randomColor();
-		io.sockets.in(usr.room).emit('message',constructNewPlayerPacket(usr.pid,500,500,randomColor()));
+		for( var key in server.rooms[newRoom].players){
+			var p = server.rooms[newRoom].players[key];
+			p.sock.volatile.emit('message',constructNewPlayerPacket(usr.pid,500,500,randomColor()));
+		}
 		socket.volatile.emit('message',constructNewPlayerIDPacket(usr.pid));
 	}
 }
@@ -140,12 +140,12 @@ io.sockets.on('connection', function (socket) {
 });
 
 function setupRoom(room){
-	room.timer=setInterval(updateRoom,1000,room);
+	room.timer=setInterval(updateRoom,16,room);
 }
 
 function updateRoom(room){
 	var update = {
-		id:PacketTypes.UPDATEPLAYER,
+		type:PacketTypes.UPDATEPLAYER,
 		players:{}
 	};
 	for(var pid in room.players){
@@ -158,7 +158,11 @@ function updateRoom(room){
 		};
 		update.players[player.pid]=tmp;
 	}
-	console.log(room.players);
-	console.log(room.id);
-	io.sockets.in(room.id).emit('message',update);
+	//console.log(room.players);
+	//console.log(room.id);
+	for( var key in room.players){
+		var p = room.players[key];
+		p.sock.volatile.emit('message',update);
+	}
+	
 }

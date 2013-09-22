@@ -1,5 +1,6 @@
 function respondClientList(socket,msg){
 	//notify user via extension
+	chrome.browserAction.setBadgeText({text:msg.clients.toString()});
 }
 function respondCreatePlayer(socket,msg){
 	//construct player on the canvas.

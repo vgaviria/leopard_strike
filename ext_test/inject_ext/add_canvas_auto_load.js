@@ -37,6 +37,7 @@ port.onMessage.addListener(function(msg) {
 		for(var key in msg.players){
 			var p = msg.players[key];
 			var ours = players[key];
+			if(key==player.pid)continue;
 			if(ours){
 				ours.x=p.x;
 				ours.y=p.y;
@@ -370,7 +371,7 @@ function renderPlayers(){
 		  ctx.lineWidth = entity.lineWidth;
 		  ctx.strokeStyle = entity.color;
 		  ctx.stroke();
-		  ctx.fillStyle = 'rgba(255,0,0,.5)';
+		  ctx.fillStyle = entity.color;
 		  ctx.fill();
 		  ctx.closePath();
 		  //crosshair
@@ -379,7 +380,7 @@ function renderPlayers(){
 		  ctx.lineWidth = entity.crosshair.lineWidth;
 		  ctx.strokeStyle = entity.crosshair.color;
 		  ctx.stroke();
-		  ctx.fillStyle = 'rgba(255,0,0,.5)';
+		  ctx.fillStyle = entity.color;
 		  ctx.fill();
 		  ctx.closePath();
 	}
