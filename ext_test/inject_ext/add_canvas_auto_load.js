@@ -89,8 +89,8 @@ var Player = function(x,y){
   this.color="red";
   this.lineWidth=3;
   this.speed=15;
-  this.health=50;
-  this.isDead=false;
+  this.maxHealth=50;
+  this.health=this.maxHealth;
   this.crosshair = {
     x:0,
     y:0,
@@ -104,6 +104,7 @@ var Player = function(x,y){
       this.y=parentY+8*Math.sin(this.angle);
     }
   };
+  this.isDead=function(){ return health<=0; }
 }
 
 var bullets=[], newBullets=[];
@@ -465,6 +466,9 @@ function renderPlayers(){
 		  ctx.fillStyle = entity.color;
 		  ctx.fill();
 		  ctx.closePath();
+      //health
+      ctx.fillStyle="red";
+      ctx.fillRect(entity.x-entity.radius,entity.y-(entity.radius+5),entity.radius*2*(entity.health/entity.maxHealth),3);
 	}
 }
 
