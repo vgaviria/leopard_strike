@@ -268,10 +268,6 @@ function initListeners(){
   },false);
   document.addEventListener("keydown", function(e) {
     keysDown[e.keyCode] = true;
-    if (e.keyCode === KEY_ESC) {
-		stop();
-		
-    }
     if(e.keyCode === 40 || e.keyCode === 38){
       e.preventDefault();
     }
@@ -320,9 +316,9 @@ function stop(){
     ctx.fillText("Game Over!",$(window).innerWidth()/3,player.y-($(window).innerHeight()/4));
     ctx.fillText("Press ESC to go back to browsing",$(window).innerWidth()/3,player.y-($(window).innerHeight()/4)+30);
     if(keysDown[KEY_ESC]){
-		reallyStop();
-		port.postMessage({quit:"now"});
-	}
+  		reallyStop();
+  		port.postMessage({quit:"now"});
+  	}
   },16.7);
 }
 function reallyStop(){
@@ -462,6 +458,9 @@ function update(){
   var winHeight = $(window).innerHeight();
   $(document).scrollTop(player.y - (winHeight * 0.5));
   
+  if (player.isDead()) {
+    stop();
+  }
 }
 //rendering functions
 var drawGrid=false;
